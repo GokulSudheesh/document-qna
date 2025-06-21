@@ -1,6 +1,15 @@
 import os
+import sys
 from dotenv import load_dotenv
 from enum import StrEnum
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    stream=sys.stdout,
+)
 
 # Load environment variables from .env file
 load_dotenv()

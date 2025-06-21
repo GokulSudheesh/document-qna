@@ -4,6 +4,7 @@ from langchain_core.runnables import RunnableLambda
 from app.core.chain.prompts import get_chat_prompt_template
 from app.core.config import Settings
 from app.core.models.completion_response import CompletionResponse
+import logging
 
 
 class Completion:
@@ -23,7 +24,7 @@ class Completion:
         self.chain = chat_prompt_template | self.model
 
     async def invoke(self, params: dict) -> CompletionResponse:
-        print(f"Invoking completion with query: {params.get('query')}")
+        logging.info(f"Invoking completion with query: {params.get('query')}")
         query = params.get("query")
         context = params.get("context")
         chat_history = params.get("chat_history") or []

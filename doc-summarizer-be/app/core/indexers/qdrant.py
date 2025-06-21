@@ -8,6 +8,7 @@ from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from qdrant_client.http.models import Distance, VectorParams
 from app.core.models.docs import DocMetaData
+import logging
 
 
 class DocumentIndexer:
@@ -26,7 +27,7 @@ class DocumentIndexer:
         try:
             collections = await self.client.get_collections()
             if Settings.QDRANT_COLLECTION_NAME not in [collection.name for collection in collections.collections]:
-                print(
+                logging.info(
                     f"Creating collection: {Settings.QDRANT_COLLECTION_NAME}")
                 await self.client.create_collection(
                     collection_name=Settings.QDRANT_COLLECTION_NAME,
@@ -43,11 +44,11 @@ class DocumentIndexer:
             # Generate UUIDs for all splits
             uuids = [f"{str(uuid4())}" for _ in range(len(doc_splits))]
             await self.vector_store.aadd_documents(documents=doc_splits, ids=uuids)
-            print(
+            logging.info(
                 f"Indexed {len(doc_splits)} document splits with UUIDs: {uuids}")
             return True
         except Exception as e:
-            print(f"Error indexing document: {e}")
+            logging.error(f"Error indexing document: {e}")
             raise
 
     async def get_retriever(self, filter: models.Filter | None, top_k: int) -> VectorStoreRetriever:
@@ -58,7 +59,7 @@ class DocumentIndexer:
 
             return self.vector_store.as_retriever(search_type="similarity", search_kwargs={"k": top_k, 'filter': filter})
         except Exception as e:
-            print(f"Error creating retriever: {e}")
+            logging.info(f"Error creating retriever: {e}")
             raise
 
 

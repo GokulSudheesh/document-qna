@@ -5,10 +5,10 @@ from app.core.models.chat import ChatRequestBody, ChatResponse
 from app.core.utils.qdrant import get_chat_response, get_stream_chat_response
 
 
-router = APIRouter(prefix="", tags=["Chat"])
+router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
-@router.post("/chat")
+@router.post("")
 async def chat(body: ChatRequestBody) -> ChatResponse:
     session_id = body.session_id
     query = body.query
@@ -22,7 +22,7 @@ async def chat(body: ChatRequestBody) -> ChatResponse:
     return ChatResponse(data=response.model_dump())
 
 
-@router.post("/chat/stream")
+@router.post("/sse")
 async def chat_stream(body: ChatRequestBody) -> ChatResponse:
     session_id = body.session_id
     query = body.query

@@ -6,6 +6,7 @@ from app.core.config import Settings
 from app.core.models.completion_response import CompletionResponseWithReferences
 from app.core.indexers.qdrant import doc_indexer
 from app.core.chain.completion import chat_completion
+from typing import AsyncGenerator, Any
 
 
 def format_docs(docs: list[Document]) -> str:
@@ -59,3 +60,23 @@ async def get_chat_response(session_id: str, query: str, chat_history: list[dict
         usage_metadata=response.usage_metadata,
         references=references
     )
+
+
+async def get_stream_chat_response(session_id: str, query: str, chat_history: list[dict] | None = []) -> AsyncGenerator[str, Any]:
+    docs_filter = models.Filter(
+        must=[
+            models.FieldCondition(
+                key="metadata.session_id",
+                match=models.MatchValue(value=session_id)
+            )
+        ]
+    )
+    extracted_documents, extracted_text = await get_similar_documents(query, docs_filter)
+    references = get_references(extracted_documents)
+    async for chunk in chat_completion.astream_with_retry(
+        query=query,
+        context=extracted_text,
+        chat_history=chat_history
+    ):
+        yield f"event: {Settings.CHAT_STREAM_MESSAGE_EVENT}\ndata: {chunk}\n\n"
+    yield f"event: {Settings.CHAT_STREAM_REFERENCES_EVENT}\ndata: {references}\n\n"

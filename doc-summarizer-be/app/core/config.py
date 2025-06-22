@@ -34,7 +34,7 @@ class Settings():
     NVIDIA_COMPLETIONS_MODEL_NAME: str = os.getenv(
         "NVIDIA_COMPLETIONS_MODEL_NAME", "mistralai/mistral-7b-instruct-v0.2")
     QDRANT_CONNECTION_URL: str = os.getenv("QDRANT_CONNECTION_URL")
-    QDRANT_COLLECTION_NAME: str = "demo_collection"
+    QDRANT_COLLECTION_NAME: str = "docs_collection"
     VECTOR_SIZE: int = 1024
     CHUNK_SIZE: int = 2000
     NO_OF_CHUNKS: int = 3
@@ -43,5 +43,9 @@ class Settings():
         "model": NVIDIA_COMPLETIONS_MODEL_NAME,
         "api_key": NVIDIA_API_KEY,
         "temperature": 0.3,
-        "max_tokens": 4096
+        "max_tokens": 4096,
+        "disable_streaming": True
     }
+
+    CHAT_STREAM_MESSAGE_EVENT: str = "message"
+    CHAT_STREAM_REFERENCES_EVENT: str = "references"

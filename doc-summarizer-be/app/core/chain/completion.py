@@ -4,11 +4,13 @@ from langchain_core.runnables import RunnableLambda
 from app.core.chain.prompts import get_chat_prompt_template
 from app.core.config import Settings
 from app.core.models.completion_response import CompletionResponse
+from typing import Any, AsyncGenerator, AsyncIterator
 import logging
 
 
 class Completion:
     def __init__(self):
+        self.retry_count = 3
         rate_limiter = InMemoryRateLimiter(
             # <-- Super slow! Sadly, we can only make a request once every 10 seconds!!
             requests_per_second=0.1,
@@ -34,12 +36,32 @@ class Completion:
         content = response.text()
         return CompletionResponse(content=content, usage_metadata=usage_metadata)
 
+    async def astream(self, params: dict) -> AsyncGenerator[str, Any]:
+        query = params.get("query")
+        context = params.get("context")
+        chat_history = params.get("chat_history") or []
+        logging.info(f"Streaming completion with query: {query}")
+        input = {"user_input": query,
+                 "context": context, "messages": chat_history}
+        async for chunk in self.chain.astream(input):
+            if (not chunk or not chunk.text()):
+                continue
+            logging.info(f"Chunk: {chunk.text()}")
+            yield chunk.content
+
     async def invoke_with_retry(self, *, query: str, context: str, chat_history: list[dict] | None = []) -> CompletionResponse:
         runnable = RunnableLambda(self.invoke)
         return await runnable.with_retry(
-            stop_after_attempt=3,
+            stop_after_attempt=self.retry_count,
             wait_exponential_jitter=True
         ).ainvoke({"query": query, "context": context, "chat_history": chat_history})
+
+    def astream_with_retry(self, *, query: str, context: str, chat_history: list[dict] | None = []) -> AsyncIterator[str]:
+        runnable = RunnableLambda(self.astream)
+        return runnable.with_retry(
+            stop_after_attempt=self.retry_count,
+            wait_exponential_jitter=True
+        ).astream({"query": query, "context": context, "chat_history": chat_history})
 
 
 chat_completion = Completion()

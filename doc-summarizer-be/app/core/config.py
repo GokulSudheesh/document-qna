@@ -32,7 +32,7 @@ class Settings():
     NVIDIA_EMBEDDINGS_MODEL: str = os.getenv(
         "NVIDIA_EMBEDDINGS_MODEL", "NV-Embed-QA")
     NVIDIA_COMPLETIONS_MODEL_NAME: str = os.getenv(
-        "NVIDIA_COMPLETIONS_MODEL_NAME", "mistralai/mistral-7b-instruct-v0.2")
+        "NVIDIA_COMPLETIONS_MODEL_NAME", "speakleash/bielik-11b-v2.3-instruct")
     QDRANT_CONNECTION_URL: str = os.getenv("QDRANT_CONNECTION_URL")
     QDRANT_COLLECTION_NAME: str = "docs_collection"
     VECTOR_SIZE: int = 1024
@@ -43,8 +43,7 @@ class Settings():
         "model": NVIDIA_COMPLETIONS_MODEL_NAME,
         "api_key": NVIDIA_API_KEY,
         "temperature": 0.3,
-        "max_tokens": 4096,
-        "disable_streaming": True
+        "max_tokens": 4096
     }
 
     CHAT_STREAM_MESSAGE_EVENT: str = "message"

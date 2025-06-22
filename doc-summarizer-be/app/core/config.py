@@ -2,6 +2,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from enum import StrEnum
+from app.core.models.file import FileType
 import logging
 
 logging.basicConfig(
@@ -51,5 +52,5 @@ class Settings():
 
     MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
     MAX_FILE_SIZE_STR: str = "5MB"
-    ACCEPTED_FILE_TYPES: list[str] = ["text/plain", "application/pdf",  "application/msword",
-                                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "txt"]
+    ACCEPTED_FILE_TYPES: list[str] = [FileType.TEXT_TYPE, FileType.PDF_TYPE,
+                                      FileType.DOC_TYPE, FileType.DOCX_TYPE, "txt", "pdf", "doc", "docx"]

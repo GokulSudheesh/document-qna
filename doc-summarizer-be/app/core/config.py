@@ -48,3 +48,8 @@ class Settings():
 
     CHAT_STREAM_MESSAGE_EVENT: str = "message"
     CHAT_STREAM_REFERENCES_EVENT: str = "references"
+
+    MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
+    MAX_FILE_SIZE_STR: str = "5MB"
+    ACCEPTED_FILE_TYPES: list[str] = ["text/plain", "application/pdf",  "application/msword",
+                                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "txt"]

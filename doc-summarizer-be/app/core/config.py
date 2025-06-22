@@ -54,3 +54,8 @@ class Settings():
     MAX_FILE_SIZE_STR: str = "5MB"
     ACCEPTED_FILE_TYPES: list[str] = [FileType.TEXT_TYPE, FileType.PDF_TYPE,
                                       FileType.DOC_TYPE, FileType.DOCX_TYPE, "txt", "pdf", "doc", "docx"]
+
+    # MongoDB configuration
+    MONGO_CONNECTION_STRING: str = os.getenv("MONGO_CONNECTION_STRING")
+    MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME")
+    MULTI_MAX: int = 100

@@ -1,13 +1,13 @@
 import io
 import logging
 from typing import List
-from uuid import uuid4
+from odmantic import ObjectId
 from fastapi import UploadFile, HTTPException, status
 from app.core.config import Settings
 import PyPDF2
 from docx import Document
 from fastapi import HTTPException
-from app.core.models.file import FileType
+from app.core.models.file import ExtractedFile, FileType
 from app.core.indexers.qdrant import doc_indexer
 import asyncio
 
@@ -79,7 +79,7 @@ async def extract_files(files: List[UploadFile]):
         elif (file.content_type == FileType.TEXT_TYPE):
             content = await extract_txt(file_content)
         extracted_file_content.append({
-            "file_id": str(uuid4()),
+            "file_id": ObjectId().__str__(),
             "file_name": file.filename,
             "file_type": file.content_type,
             "content": content,
@@ -88,12 +88,12 @@ async def extract_files(files: List[UploadFile]):
     return extracted_file_content
 
 
-async def index_files(session_id: str, files: List[UploadFile]):
+async def index_files(session_id: str, files: List[UploadFile]) -> List[ExtractedFile]:
     extracted_files = await extract_files(files)
     filtered_files = []
     for extracted_file in extracted_files:
         filtered_files.append({
-            "file_id": extracted_file["file_id"],
+            "id": extracted_file["file_id"],
             "file_name": extracted_file["file_name"],
             "file_type": extracted_file["file_type"]
         })

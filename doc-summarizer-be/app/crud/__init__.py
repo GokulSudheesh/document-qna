@@ -1,4 +1,5 @@
 from .crud_session import session
+from .crud_file import file
 
 
 # For a new basic set of CRUD operations you could just do

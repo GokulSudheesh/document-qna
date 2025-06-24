@@ -11,6 +11,7 @@ class DocMetaData(BaseModel):
     session_id: str
     file_name: str
     file_type: str
+    file_size: int | None
 
 
 def datetime_now_sec():
@@ -21,4 +22,5 @@ class FileModel(Base):
     created: datetime = Field(default_factory=datetime_now_sec)
     file_name: str = Field()
     file_type: FileType = Field()
+    file_size: int = Field(default=None)
     session_id: Session = Reference()

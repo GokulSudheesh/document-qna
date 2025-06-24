@@ -11,7 +11,7 @@ from fastapi.encoders import jsonable_encoder
 
 class CRUDFile(CRUDBase[FileModel, None, None]):
     async def create_multi(self, db: AgnosticDatabase, *, obj_in: List[ExtractedFile], session_obj: Session) -> List[FileModel]:  # noqa
-        obj_in = [FileModel(id=file["id"], file_name=file["file_name"],
+        obj_in = [FileModel(id=file["id"], file_name=file["file_name"], file_size=file["file_size"],
                             file_type=file["file_type"], session_id=session_obj) for file in obj_in]
         # Extend the session's files with the new file IDs
         session_obj.files.extend(file.id for file in obj_in)
@@ -35,6 +35,9 @@ class CRUDFile(CRUDBase[FileModel, None, None]):
                         },
                         "file_name": 1,
                         "file_type": 1,
+                        "created": {
+                            "$toString": "$created"
+                        },
                         "session_id": {
                             "$toString": "$session_id"
                         },

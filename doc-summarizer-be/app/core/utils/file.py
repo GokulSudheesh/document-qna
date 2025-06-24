@@ -83,6 +83,7 @@ async def extract_files(files: List[UploadFile]):
             "file_id": ObjectId().__str__(),
             "file_name": file.filename,
             "file_type": file.content_type,
+            "file_size": file.size,
             "content": content,
         })
     # logging.info(f"Extracted {extracted_file_content} files.")
@@ -96,7 +97,8 @@ async def index_files(session_id: str, files: List[UploadFile]) -> List[Extracte
         filtered_files.append({
             "id": extracted_file["file_id"],
             "file_name": extracted_file["file_name"],
-            "file_type": extracted_file["file_type"]
+            "file_type": extracted_file["file_type"],
+            "file_size": extracted_file["file_size"]
         })
         await doc_indexer.index_documents(
             extracted_text=extracted_file['content'],
@@ -104,7 +106,8 @@ async def index_files(session_id: str, files: List[UploadFile]) -> List[Extracte
                 "session_id": session_id,
                 "file_id": extracted_file["file_id"],
                 "file_name": extracted_file["file_name"],
-                "file_type": extracted_file["file_type"]
+                "file_type": extracted_file["file_type"],
+                "file_size": extracted_file["file_size"]
             }
         )
     return filtered_files

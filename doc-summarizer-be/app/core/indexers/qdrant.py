@@ -62,5 +62,14 @@ class DocumentIndexer:
             logging.info(f"Error creating retriever: {e}")
             raise
 
+    async def delete_record(self, filter: models.Filter | None,) -> bool:
+        try:
+            await self.client.delete(collection_name=Settings.QDRANT_COLLECTION_NAME, points_selector=filter)
+            logging.info(f"Deleted record with filter: {filter}")
+            return True
+        except Exception as e:
+            logging.error(f"Error deleting record: {e}")
+            raise
+
 
 doc_indexer = DocumentIndexer()

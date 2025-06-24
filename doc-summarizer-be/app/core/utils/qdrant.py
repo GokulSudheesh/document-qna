@@ -34,3 +34,28 @@ async def get_similar_documents(query: str, filter: models.Filter) -> Tuple[list
     except Exception as e:
         logging.error(f"Error while extracting documents: {str(e)}")
         raise RuntimeError(f"Error while extracting documents: {str(e)}")
+
+
+async def delete_indexed_record(*, session_id: str | None = None, file_id: str | None = None) -> bool:
+    try:
+        filter_conditions = []
+        if session_id:
+            filter_conditions.append(
+                models.FieldCondition(
+                    key="metadata.session_id",
+                    match=models.MatchValue(value=session_id)
+                )
+            )
+        if file_id:
+            filter_conditions.append(
+                models.FieldCondition(
+                    key="metadata.file_id",
+                    match=models.MatchValue(value=file_id)
+                )
+            )
+        filter = models.Filter(must=filter_conditions)
+
+        return await doc_indexer.delete_record(filter=filter)
+    except Exception as e:
+        logging.error(f"Error while deleting record: {str(e)}")
+        raise RuntimeError(f"Error while deleting record: {str(e)}")

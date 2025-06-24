@@ -1,9 +1,11 @@
 import logging
 from bson import ObjectId
 from fastapi import HTTPException, status
+from app.core.models.chat_model import ChatModel
 from app.core.models.file_model import FileModel
 from app.core.models.session_model import Session
 from motor.core import AgnosticDatabase
+from app.core.utils.qdrant import delete_indexed_record
 from app.crud.base import CRUDBase
 
 
@@ -46,7 +48,8 @@ class CRUDSession(CRUDBase[Session, None, None]):
                                     "$toString": "$created"
                                 },
                                 "file_name": 1,
-                                "file_type": 1
+                                "file_type": 1,
+                                "file_size": 1
                             }
                         }
                     ],
@@ -70,6 +73,7 @@ class CRUDSession(CRUDBase[Session, None, None]):
         return sessions[0] if sessions else None
 
     async def remove(self, db: AgnosticDatabase, *, id: str) -> Session:
+        await delete_indexed_record(session_id=id)
         id = ObjectId(id)
         db_obj = await self.get(db, id)
         if (not db_obj):
@@ -77,9 +81,13 @@ class CRUDSession(CRUDBase[Session, None, None]):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Session not found."
             )
+        # Deleting associated files and chats
         async for file in self.engine.find(FileModel, FileModel.session_id == id):
             logging.info(f"Deleting file with ID: {file.id}")
             await self.engine.delete(file)
+        async for chat in self.engine.find(ChatModel, ChatModel.session_id == id):
+            # logging.info(f"Deleting chat with ID: {chat.id}")
+            await self.engine.delete(chat)
         await self.engine.delete(db_obj)
         return db_obj
 

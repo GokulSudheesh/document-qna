@@ -9,6 +9,7 @@ from app.core.models.file_model import FileModel
 from app.core.models.file_response import ExtractedFile
 from motor.core import AgnosticDatabase
 from app.core.models.session_model import Session
+from app.core.utils.qdrant import delete_indexed_record
 from app.crud.base import CRUDBase
 from fastapi.encoders import jsonable_encoder
 
@@ -39,6 +40,7 @@ class CRUDFile(CRUDBase[FileModel, None, None]):
                         },
                         "file_name": 1,
                         "file_type": 1,
+                        "file_size": 1,
                         "created": {
                             "$toString": "$created"
                         },
@@ -51,6 +53,7 @@ class CRUDFile(CRUDBase[FileModel, None, None]):
         return files
 
     async def remove(self, db: AgnosticDatabase, *, id: str) -> FileModel:
+        await delete_indexed_record(file_id=id)
         id = ObjectId(id)
         db_obj = await self.get(db, id)
         if (not db_obj):

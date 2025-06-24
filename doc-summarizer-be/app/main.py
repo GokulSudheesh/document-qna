@@ -2,8 +2,9 @@ from fastapi import FastAPI, Request
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from app.api.main import api_router
-from app.core.config import Environment, Settings
+from app.core.config import Settings
 from contextlib import asynccontextmanager
+from app.core.models.enum import Environment
 import logging
 
 

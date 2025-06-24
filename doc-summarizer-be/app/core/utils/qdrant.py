@@ -3,7 +3,7 @@ from typing import Tuple
 from qdrant_client import models
 from langchain_core.documents import Document
 from app.core.config import Settings
-from app.core.models.completion_response import CompletionResponseWithReferences
+from app.core.models.completion_model import CompletionResponseWithReferences
 from app.core.indexers.qdrant import doc_indexer
 from app.core.chain.completion import chat_completion
 from typing import AsyncGenerator, Any

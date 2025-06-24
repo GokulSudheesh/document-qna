@@ -1,9 +1,10 @@
 from typing import List
 
 from app.core.config import Settings
-from app.core.models.file import ExtractedFile, FileModel
+from app.core.models.file_model import FileModel
+from app.core.models.file_response import ExtractedFile
 from motor.core import AgnosticDatabase
-from app.core.models.session import Session
+from app.core.models.session_model import Session
 from app.crud.base import CRUDBase
 from fastapi.encoders import jsonable_encoder
 

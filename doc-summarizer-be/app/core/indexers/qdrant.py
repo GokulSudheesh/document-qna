@@ -7,7 +7,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from qdrant_client.http.models import Distance, VectorParams
-from app.core.models.docs import DocMetaData
+from app.core.models.file_model import DocMetaData
 import logging
 
 

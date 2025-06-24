@@ -3,7 +3,7 @@ from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_core.runnables import RunnableLambda
 from app.core.chain.prompts import get_chat_prompt_template
 from app.core.config import Settings
-from app.core.models.completion_response import CompletionResponse
+from app.core.models.completion_model import CompletionResponse
 from typing import Any, AsyncGenerator, AsyncIterator
 import logging
 

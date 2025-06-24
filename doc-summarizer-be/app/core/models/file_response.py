@@ -4,6 +4,21 @@ from typing import List
 from pydantic import BaseModel
 
 
+class ExtractedFile(BaseModel):
+    id: str
+    file_name: str
+    file_type: FileType
+
+
+class FileExtractionResponse(BaseModel):
+    session_id: str
+    files: List[ExtractedFile]
+
+
+class FileUploadResponse(AppResponse):
+    data: FileExtractionResponse
+
+
 class GetFileResponse(BaseModel):
     id: str
     session_id: str

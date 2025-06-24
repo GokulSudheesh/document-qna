@@ -2,8 +2,7 @@ import logging
 from fastapi import APIRouter, UploadFile, HTTPException, status, File, Query, Depends
 from typing import List, Optional
 from app import crud
-from app.core.models.file import FileUploadResponse
-from app.core.models.file_response import GetFilesResponse
+from app.core.models.file_response import GetFilesResponse, FileUploadResponse
 from app.core.utils.file import validate_file, index_files
 from motor.core import AgnosticDatabase
 from app.api import deps

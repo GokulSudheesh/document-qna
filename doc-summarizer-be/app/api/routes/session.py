@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, status, HTTPException, Depends
-from app.core.models.session import CreateSessionResponse, GetSessionByIDResponse, GetSessionsResponse
+from app.core.models.session_response import CreateSessionResponse, GetSessionByIDResponse, GetSessionsResponse
 from motor.core import AgnosticDatabase
 from app import crud
 from app.api import deps

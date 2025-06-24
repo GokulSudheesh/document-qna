@@ -1,6 +1,6 @@
 import logging
 from bson import ObjectId
-from app.core.models.session import Session
+from app.core.models.session_model import Session
 from motor.core import AgnosticDatabase
 from app.crud.base import CRUDBase
 

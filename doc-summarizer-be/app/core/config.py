@@ -1,8 +1,7 @@
 import os
 import sys
 from dotenv import load_dotenv
-from enum import StrEnum
-from app.core.models.enum import FileType
+from app.core.models.enum import Environment, FileType
 import logging
 
 logging.basicConfig(
@@ -14,12 +13,6 @@ logging.basicConfig(
 
 # Load environment variables from .env file
 load_dotenv()
-
-
-class Environment(StrEnum):
-    LOCAL = "local"
-    DEV = "dev"
-    PROD = "prod"
 
 
 class Settings():

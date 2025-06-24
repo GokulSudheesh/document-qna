@@ -7,7 +7,8 @@ from app.core.config import Settings
 import PyPDF2
 from docx import Document
 from fastapi import HTTPException
-from app.core.models.file import ExtractedFile, FileType
+from app.core.models.file import ExtractedFile
+from app.core.models.enum import FileType
 from app.core.indexers.qdrant import doc_indexer
 import asyncio
 

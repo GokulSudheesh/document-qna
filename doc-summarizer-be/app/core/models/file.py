@@ -1,3 +1,4 @@
+from app.core.models.enum import FileType
 from app.core.models.generic_response import AppResponse
 from typing import List
 from enum import StrEnum
@@ -6,13 +7,6 @@ from datetime import datetime
 from odmantic import Field, Reference
 from app.db.base_class import Base
 from app.core.models.session import Session
-
-
-class FileType(StrEnum):
-    TEXT_TYPE = "text/plain"
-    PDF_TYPE = "application/pdf"
-    DOC_TYPE = "application/msword"
-    DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 
 class ExtractedFile(BaseModel):
@@ -39,8 +33,3 @@ class FileModel(Base):
     file_name: str = Field()
     file_type: FileType = Field()
     session_id: Session = Reference()
-
-
-class GetFilesResponse(AppResponse):
-    # data: List[FileModel]
-    data: list

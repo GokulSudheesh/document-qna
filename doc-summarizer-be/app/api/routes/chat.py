@@ -1,17 +1,26 @@
 import logging
-from fastapi import APIRouter
+from bson import ObjectId
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import StreamingResponse
 from app.core.models.chat import ChatRequestBody, ChatResponse
 from app.core.utils.qdrant import get_chat_response, get_stream_chat_response
-
+from motor.core import AgnosticDatabase
+from app import crud
+from app.api import deps
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
 @router.post("")
-async def chat(body: ChatRequestBody) -> ChatResponse:
+async def chat(body: ChatRequestBody, db: AgnosticDatabase = Depends(deps.get_db)) -> ChatResponse:
     session_id = body.session_id
     query = body.query
+    session = await crud.session.get(db, id=ObjectId(session_id))
+    if (not session):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found."
+        )
     response = await get_chat_response(
         session_id=session_id,
         query=query,
@@ -23,9 +32,16 @@ async def chat(body: ChatRequestBody) -> ChatResponse:
 
 
 @router.post("/sse")
-async def chat_stream(body: ChatRequestBody) -> ChatResponse:
+async def chat_stream(body: ChatRequestBody,
+                      db: AgnosticDatabase = Depends(deps.get_db)) -> StreamingResponse:
     session_id = body.session_id
     query = body.query
+    session = await crud.session.get(db, id=ObjectId(session_id))
+    if (not session):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found."
+        )
     logging.info(
         f"Streaming chat response for session_id: {session_id}, query: {query}")
     return StreamingResponse(get_stream_chat_response(

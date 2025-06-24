@@ -2,7 +2,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from enum import StrEnum
-from app.core.models.file import FileType
+from app.core.models.enum import FileType
 import logging
 
 logging.basicConfig(

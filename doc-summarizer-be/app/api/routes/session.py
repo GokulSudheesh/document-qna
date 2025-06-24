@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, status, HTTPException, Depends
-from app.core.models.session import CreateSessionResponse, GetSessionsResponse
+from app.core.models.session import CreateSessionResponse, GetSessionByIDResponse, GetSessionsResponse
 from motor.core import AgnosticDatabase
 from app import crud
 from app.api import deps
@@ -30,10 +30,10 @@ async def list_sessions(*, db: AgnosticDatabase = Depends(deps.get_db)) -> GetSe
 
 
 @router.get("/{session_id}")
-async def get_session(
+async def get_session_by_id(
     session_id: str,
     db: AgnosticDatabase = Depends(deps.get_db)
-):
+) -> GetSessionByIDResponse:
     """
     Endpoint to get a specific session by its ID.
     """
@@ -42,4 +42,4 @@ async def get_session(
     if not session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
-    return {"data": session}
+    return GetSessionByIDResponse(data=session)

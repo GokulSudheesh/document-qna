@@ -3,10 +3,7 @@ from typing import Tuple
 from qdrant_client import models
 from langchain_core.documents import Document
 from app.core.config import Settings
-from app.core.models.completion_model import CompletionResponseWithReferences
 from app.core.indexers.qdrant import doc_indexer
-from app.core.chain.completion import chat_completion
-from typing import AsyncGenerator, Any
 
 
 def format_docs(docs: list[Document]) -> str:
@@ -37,46 +34,3 @@ async def get_similar_documents(query: str, filter: models.Filter) -> Tuple[list
     except Exception as e:
         logging.error(f"Error while extracting documents: {str(e)}")
         raise RuntimeError(f"Error while extracting documents: {str(e)}")
-
-
-async def get_chat_response(session_id: str, query: str, chat_history: list[dict] | None = []) -> CompletionResponseWithReferences:
-    docs_filter = models.Filter(
-        must=[
-            models.FieldCondition(
-                key="metadata.session_id",
-                match=models.MatchValue(value=session_id)
-            )
-        ]
-    )
-    extracted_documents, extracted_text = await get_similar_documents(query, docs_filter)
-    references = get_references(extracted_documents)
-    response = await chat_completion.invoke_with_retry(
-        query=query,
-        context=extracted_text,
-        chat_history=chat_history
-    )
-    return CompletionResponseWithReferences(
-        content=response.content,
-        usage_metadata=response.usage_metadata,
-        references=references
-    )
-
-
-async def get_stream_chat_response(session_id: str, query: str, chat_history: list[dict] | None = []) -> AsyncGenerator[str, Any]:
-    docs_filter = models.Filter(
-        must=[
-            models.FieldCondition(
-                key="metadata.session_id",
-                match=models.MatchValue(value=session_id)
-            )
-        ]
-    )
-    extracted_documents, extracted_text = await get_similar_documents(query, docs_filter)
-    references = get_references(extracted_documents)
-    async for chunk in chat_completion.astream_with_retry(
-        query=query,
-        context=extracted_text,
-        chat_history=chat_history
-    ):
-        yield f"event: {Settings.CHAT_STREAM_MESSAGE_EVENT}\ndata: {chunk}\n\n"
-    yield f"event: {Settings.CHAT_STREAM_REFERENCES_EVENT}\ndata: {references}\n\n"

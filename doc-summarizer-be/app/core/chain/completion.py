@@ -3,8 +3,9 @@ from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_core.runnables import RunnableLambda
 from app.core.chain.prompts import get_chat_prompt_template
 from app.core.config import Settings
+from app.core.models.chat_model import TransformedChatModel
 from app.core.models.completion_model import CompletionResponse
-from typing import Any, AsyncGenerator, AsyncIterator
+from typing import Any, AsyncGenerator, AsyncIterator, List
 import logging
 
 
@@ -49,14 +50,14 @@ class Completion:
             logging.info(f"Chunk: {chunk.text()}")
             yield chunk.content
 
-    async def invoke_with_retry(self, *, query: str, context: str, chat_history: list[dict] | None = []) -> CompletionResponse:
+    async def invoke_with_retry(self, *, query: str, context: str, chat_history: List[TransformedChatModel] | None = []) -> CompletionResponse:
         runnable = RunnableLambda(self.invoke)
         return await runnable.with_retry(
             stop_after_attempt=self.retry_count,
             wait_exponential_jitter=True
         ).ainvoke({"query": query, "context": context, "chat_history": chat_history})
 
-    def astream_with_retry(self, *, query: str, context: str, chat_history: list[dict] | None = []) -> AsyncIterator[str]:
+    def astream_with_retry(self, *, query: str, context: str, chat_history: List[TransformedChatModel] | None = []) -> AsyncIterator[str]:
         runnable = RunnableLambda(self.astream)
         return runnable.with_retry(
             stop_after_attempt=self.retry_count,

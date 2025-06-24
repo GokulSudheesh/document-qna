@@ -1,5 +1,6 @@
 from .crud_session import session
 from .crud_file import file
+from .crud_chat import chat
 
 
 # For a new basic set of CRUD operations you could just do

@@ -2,10 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from odmantic import Field, ObjectId
 from app.db.base_class import Base
-
-
-def datetime_now_sec():
-    return datetime.now().replace(microsecond=0)
+from app.core.models.util import datetime_now_sec
 
 
 class Session(Base):

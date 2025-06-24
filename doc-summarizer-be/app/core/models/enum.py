@@ -12,3 +12,8 @@ class Environment(StrEnum):
     LOCAL = "local"
     DEV = "dev"
     PROD = "prod"
+
+
+class MessageRole(StrEnum):
+    USER = "user"
+    ASSISTANT = "assistant"

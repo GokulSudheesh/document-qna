@@ -3,6 +3,7 @@ from fastapi import APIRouter, UploadFile, HTTPException, status, File, Query, D
 from typing import List, Optional
 from app import crud
 from app.core.models.file_response import GetFilesResponse, FileUploadResponse
+from app.core.models.generic_response import DeleteByIDResponse
 from app.core.utils.file import validate_file, index_files
 from motor.core import AgnosticDatabase
 from app.api import deps
@@ -52,3 +53,13 @@ async def list_files(
         )
     files = await crud.file.get_multi(db=db, session=session)
     return GetFilesResponse(data=files)
+
+
+@router.delete("/{file_id}")
+async def delete_file(
+    file_id: str,
+    db: AgnosticDatabase = Depends(deps.get_db)
+) -> DeleteByIDResponse:
+    logging.info(f"Deleting file with ID: {file_id}")
+    await crud.file.remove(db=db, id=file_id)
+    return DeleteByIDResponse(data={"id": file_id, "message": "File deleted successfully."})

@@ -1,5 +1,6 @@
 import logging
 from fastapi import APIRouter, status, HTTPException, Depends
+from app.core.models.generic_response import DeleteByIDResponse
 from app.core.models.session_response import CreateSessionResponse, GetSessionByIDResponse, GetSessionsResponse
 from motor.core import AgnosticDatabase
 from app import crud
@@ -43,3 +44,16 @@ async def get_session_by_id(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
     return GetSessionByIDResponse(data=session)
+
+
+@router.delete("/{session_id}")
+async def delete_session(
+    session_id: str,
+    db: AgnosticDatabase = Depends(deps.get_db)
+) -> DeleteByIDResponse:
+    """
+    Endpoint to delete a specific session by its ID.
+    """
+    logging.info(f"Deleting session with ID: {session_id}")
+    await crud.session.remove(db=db, id=session_id)
+    return DeleteByIDResponse(data={"id": session_id, "message": "Session deleted successfully"})

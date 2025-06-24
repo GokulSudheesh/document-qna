@@ -1,5 +1,7 @@
 import logging
 from bson import ObjectId
+from fastapi import HTTPException, status
+from app.core.models.file_model import FileModel
 from app.core.models.session_model import Session
 from motor.core import AgnosticDatabase
 from app.crud.base import CRUDBase
@@ -66,6 +68,20 @@ class CRUDSession(CRUDBase[Session, None, None]):
             }
         ]).to_list()
         return sessions[0] if sessions else None
+
+    async def remove(self, db: AgnosticDatabase, *, id: str) -> Session:
+        id = ObjectId(id)
+        db_obj = await self.get(db, id)
+        if (not db_obj):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Session not found."
+            )
+        async for file in self.engine.find(FileModel, FileModel.session_id == id):
+            logging.info(f"Deleting file with ID: {file.id}")
+            await self.engine.delete(file)
+        await self.engine.delete(db_obj)
+        return db_obj
 
 
 session = CRUDSession(Session)

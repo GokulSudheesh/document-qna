@@ -1,4 +1,8 @@
+import logging
 from typing import List
+
+from bson import ObjectId
+from fastapi import HTTPException, status
 
 from app.core.config import Settings
 from app.core.models.file_model import FileModel
@@ -45,6 +49,21 @@ class CRUDFile(CRUDBase[FileModel, None, None]):
             },
         ]).to_list()
         return files
+
+    async def remove(self, db: AgnosticDatabase, *, id: str) -> FileModel:
+        id = ObjectId(id)
+        db_obj = await self.get(db, id)
+        if (not db_obj):
+            logging.error(f"File with ID {id} not found for deletion.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found."
+            )
+        session = await self.engine.find_one(Session, Session.files.in_([db_obj.id]))
+        session.files.remove(db_obj.id)
+        await self.engine.save(session)
+        await self.engine.delete(db_obj)
+        return db_obj
 
 
 file = CRUDFile(FileModel)

@@ -7,3 +7,12 @@ T = TypeVar("T", bound=Union[BaseModel, List[BaseModel], Any])
 class AppResponse(BaseModel, Generic[T]):
     success: bool = True
     data: dict | list[dict]
+
+
+class DeleteByID(BaseModel):
+    id: str
+    message: str
+
+
+class DeleteByIDResponse(AppResponse):
+    data: DeleteByID

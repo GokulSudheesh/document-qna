@@ -76,12 +76,8 @@ class CRUDSession(CRUDBase[Session, None, None]):
         id = db_obj.id
         await delete_indexed_record(session_id=str(id))
         # Deleting associated files and chats
-        async for file in self.engine.find(FileModel, FileModel.session_id == id):
-            logging.info(f"Deleting file with ID: {file.id}")
-            await self.engine.delete(file)
-        async for chat in self.engine.find(ChatModel, ChatModel.session_id == id):
-            # logging.info(f"Deleting chat with ID: {chat.id}")
-            await self.engine.delete(chat)
+        await self.engine.remove(FileModel, FileModel.session_id == id)
+        await self.engine.remove(ChatModel, ChatModel.session_id == id)
         await self.engine.delete(db_obj)
         return db_obj
 

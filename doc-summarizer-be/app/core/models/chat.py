@@ -4,7 +4,6 @@ from app.core.models.generic_response import AppResponse
 
 
 class ChatRequestBody(BaseModel):
-    session_id: str
     query: str
 
 

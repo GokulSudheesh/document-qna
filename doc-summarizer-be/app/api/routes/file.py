@@ -1,13 +1,13 @@
 import logging
-from fastapi import APIRouter, UploadFile, HTTPException, status, File, Query, Depends
+from fastapi import APIRouter, UploadFile, File, Query, Depends
 from typing import List, Optional
 from app import crud
 from app.core.models.file_response import GetFilesResponse, FileUploadResponse
 from app.core.models.generic_response import DeleteByIDResponse
+from app.core.models.session_model import Session
 from app.core.utils.file import validate_file, index_files
 from motor.core import AgnosticDatabase
 from app.api import deps
-from bson import ObjectId
 
 
 router = APIRouter(prefix="/file", tags=["File"])
@@ -21,12 +21,7 @@ async def file_upload(
 ) -> FileUploadResponse:
     session = None
     if (session_id):
-        session = await crud.session.get(db, id=ObjectId(session_id))
-        if not session:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid session ID provided.",
-            )
+        session = await deps.get_session(session_id, db)
     else:
         logging.info("Creating a new session")
         session = await crud.session.create(db=db)
@@ -43,14 +38,8 @@ async def file_upload(
 @router.get("/list")
 async def list_files(
     db: AgnosticDatabase = Depends(deps.get_db),
-    session_id: str = Query(...)
+    session: Session = Depends(deps.get_session)
 ) -> GetFilesResponse:
-    session = await crud.session.get(db, id=ObjectId(session_id))
-    if (not session):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Session not found."
-        )
     files = await crud.file.get_multi(db=db, session=session)
     return GetFilesResponse(data=files)
 

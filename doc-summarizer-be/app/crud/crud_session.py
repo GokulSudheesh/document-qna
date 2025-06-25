@@ -72,15 +72,9 @@ class CRUDSession(CRUDBase[Session, None, None]):
         ]).to_list()
         return sessions[0] if sessions else None
 
-    async def remove(self, db: AgnosticDatabase, *, id: str) -> Session:
-        await delete_indexed_record(session_id=id)
-        id = ObjectId(id)
-        db_obj = await self.get(db, id)
-        if (not db_obj):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Session not found."
-            )
+    async def remove(self, db: AgnosticDatabase, *, db_obj: Session) -> Session:
+        id = db_obj.id
+        await delete_indexed_record(session_id=str(id))
         # Deleting associated files and chats
         async for file in self.engine.find(FileModel, FileModel.session_id == id):
             logging.info(f"Deleting file with ID: {file.id}")

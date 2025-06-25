@@ -33,6 +33,64 @@ class CRUDChat(CRUDBase[ChatModel, None, None]):
             [
                 {"$match": {"session_id": session.id}},
                 *offset,
+                # Transform references field to ensure references is always an array before the lookup
+                {
+                    "$addFields": {
+                        "references": {
+                            "$cond": {
+                                "if": {
+                                    "$ne": [{"$type": "$references"}, "array"]
+                                },
+                                "then": [],
+                                "else": "$references"
+                            }
+                        }
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "file",
+                        "let": {
+                            "file_ids": "$references"
+                        },
+                        "pipeline": [
+                            {
+                                "$match": {
+                                    "$expr": {
+                                        "$in": [
+                                            "$_id",
+                                            "$$file_ids"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "$project": {
+                                    "_id": 0,
+                                    "id": {
+                                        "$toString": "$_id"
+                                    },
+                                    "file_name": 1,
+                                }
+                            }
+                        ],
+                        "as": "references"
+                    }
+                },
+                # Ensure references is an array or None
+                {
+                    "$addFields": {
+                        "references": {
+                            "$cond": {
+                                "if": {
+                                    "$eq": [{"$size": "$references"}, 0]
+                                },
+                                "then": None,
+                                "else": "$references"
+                            }
+                        }
+                    }
+                },
                 {
                     "$project":
                     {
@@ -42,6 +100,7 @@ class CRUDChat(CRUDBase[ChatModel, None, None]):
                         "session_id": {"$toString": "$session_id"},
                         "role": 1,
                         "message": 1,
+                        "references": 1
                     }
                 }
             ]).to_list()

@@ -47,7 +47,7 @@ class Completion:
         async for chunk in self.chain.astream(input):
             if (not chunk or not chunk.text()):
                 continue
-            logging.info(f"Chunk: {chunk.text()}")
+            # logging.info(f"Chunk: {chunk.text()}")
             yield chunk.content
 
     async def invoke_with_retry(self, *, query: str, context: str, chat_history: List[TransformedChatModel] | None = []) -> CompletionResponse:

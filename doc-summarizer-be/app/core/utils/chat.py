@@ -1,3 +1,4 @@
+from bson import ObjectId
 from qdrant_client import models
 from app import crud
 from app.core.config import Settings
@@ -24,6 +25,7 @@ async def get_chat_response(db: AgnosticDatabase, session: Session, query: str, 
         ]
     )
     extracted_documents, extracted_text = await get_similar_documents(query, docs_filter)
+    logging.info(f"Extracted text: {extracted_text}")
     references = get_references(extracted_documents)
     response = await chat_completion.invoke_with_retry(
         query=query,
@@ -43,7 +45,9 @@ async def get_chat_response(db: AgnosticDatabase, session: Session, query: str, 
         obj_in=ChatModel(
             session_id=session,
             role=MessageRole.ASSISTANT,
-            message=response.content
+            message=response.content,
+            references=[ObjectId(reference["file_id"])
+                        for reference in references]
         )
     )
     return CompletionResponseWithReferences(
@@ -64,6 +68,7 @@ async def get_stream_chat_response(db: AgnosticDatabase, session: Session, query
         ]
     )
     extracted_documents, extracted_text = await get_similar_documents(query, docs_filter)
+    logging.info(f"Extracted text: {extracted_text}")
     references = get_references(extracted_documents)
     message = ""
     async for chunk in chat_completion.astream_with_retry(
@@ -87,7 +92,9 @@ async def get_stream_chat_response(db: AgnosticDatabase, session: Session, query
         obj_in=ChatModel(
             session_id=session,
             role=MessageRole.ASSISTANT,
-            message=message
+            message=message,
+            references=[ObjectId(reference["file_id"])
+                        for reference in references]
         )
     )
     yield f"event: {Settings.CHAT_STREAM_REFERENCES_EVENT}\ndata: {references}\n\n"

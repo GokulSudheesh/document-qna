@@ -7,11 +7,32 @@ from app.core.models.session_model import Session
 from motor.core import AgnosticDatabase
 from app.core.utils.qdrant import delete_indexed_record
 from app.crud.base import CRUDBase
+from app.core.config import Settings
+from odmantic.engine import AIOCursor
 
 
 class CRUDSession(CRUDBase[Session, None, None]):
     async def create(self, db: AgnosticDatabase) -> Session:  # noqa
         return await self.engine.save(Session())
+
+    async def get_multi(self, db: AgnosticDatabase, *, page: int = 0, page_break: bool = False) -> list[Session]:  # noqa
+        offset = [{"$limit": Settings.MULTI_MAX},
+                  {"$skip": page * Settings.MULTI_MAX}] if page_break else []
+        collection = self.engine.get_collection(Session)
+        motor_cursor = collection.aggregate([
+            *offset,
+            {
+                "$project":
+                    {
+                        "created": {
+                            "$toString": "$created"
+                        },
+                        "session_name": 1,
+                        "files": 1,
+                    }
+            },
+        ])
+        return await AIOCursor(self.model, motor_cursor)
 
     async def get_by_id(self, db: AgnosticDatabase, id: str):
         logging.info(f"Retrieving session with ID: {ObjectId(id)}")

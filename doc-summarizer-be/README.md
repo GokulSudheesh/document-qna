@@ -1,4 +1,4 @@
-### Setting up FastAPI
+### Setting up Backend Development Environment
 
 - Run qdrant and mongodb locally
 

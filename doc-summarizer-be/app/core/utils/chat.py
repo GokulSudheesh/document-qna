@@ -4,12 +4,12 @@ from app import crud
 from app.core.config import Settings
 from app.core.models.chat_model import ChatModel, TransformedChatModel
 from app.core.models.completion_model import CompletionResponseWithReferences
-from app.core.indexers.qdrant import doc_indexer
-from app.core.chain.completion import chat_completion
+from app.core.chain.chat_completion import chat_completion
+from app.core.chain.other_completion import session_name_completion
 from typing import AsyncGenerator, Any, List
 from motor.core import AgnosticDatabase
 from app.core.models.enum import MessageRole
-from app.core.models.session_model import Session
+from app.core.models.session_model import Session, UpdateSession
 from app.core.utils.qdrant import get_references, get_similar_documents
 import logging
 
@@ -50,6 +50,18 @@ async def get_chat_response(db: AgnosticDatabase, session: Session, query: str, 
                         for reference in references]
         )
     )
+    chat_history.extend([
+        TransformedChatModel(
+            role=MessageRole.USER,
+            content=query
+        ),
+        TransformedChatModel(
+            role=MessageRole.ASSISTANT,
+            content=response.content
+        )
+    ])
+    if (len(chat_history) % Settings.SESSION_NAME_UPDATE_THRESHOLD == 2):
+        await update_session_name(db, session, chat_history=chat_history)
     return CompletionResponseWithReferences(
         content=response.content,
         usage_metadata=response.usage_metadata,
@@ -97,4 +109,25 @@ async def get_stream_chat_response(db: AgnosticDatabase, session: Session, query
                         for reference in references]
         )
     )
+    chat_history.extend([
+        TransformedChatModel(
+            role=MessageRole.USER,
+            content=query
+        ),
+        TransformedChatModel(
+            role=MessageRole.ASSISTANT,
+            content=message
+        )
+    ])
+    if (len(chat_history) % Settings.SESSION_NAME_UPDATE_THRESHOLD == 2):
+        await update_session_name(db, session, chat_history=chat_history)
     yield f"event: {Settings.CHAT_STREAM_REFERENCES_EVENT}\ndata: {references}\n\n"
+
+
+async def update_session_name(db: AgnosticDatabase, session: Session, chat_history: List[TransformedChatModel] | None = []) -> Session:
+    session_name = await session_name_completion.invoke_with_retry(chat_history=chat_history)
+    logging.info(f"Updating session name to: {session_name}")
+    new_session_data = UpdateSession(
+        session_name=session_name,
+    )
+    return await crud.session.update(db, db_obj=session, obj_in=new_session_data)

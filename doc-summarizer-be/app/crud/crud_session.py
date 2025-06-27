@@ -1,9 +1,8 @@
 import logging
 from bson import ObjectId
-from fastapi import HTTPException, status
 from app.core.models.chat_model import ChatModel
 from app.core.models.file_model import FileModel
-from app.core.models.session_model import Session
+from app.core.models.session_model import Session, UpdateSession
 from motor.core import AgnosticDatabase
 from app.core.utils.qdrant import delete_indexed_record
 from app.crud.base import CRUDBase
@@ -11,7 +10,7 @@ from app.core.config import Settings
 from odmantic.engine import AIOCursor
 
 
-class CRUDSession(CRUDBase[Session, None, None]):
+class CRUDSession(CRUDBase[Session, None, UpdateSession]):
     async def create(self, db: AgnosticDatabase) -> Session:  # noqa
         return await self.engine.save(Session())
 

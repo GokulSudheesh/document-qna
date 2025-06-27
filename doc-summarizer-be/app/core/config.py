@@ -52,3 +52,4 @@ class Settings():
     MONGO_CONNECTION_STRING: str = os.getenv("MONGO_CONNECTION_STRING")
     MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME")
     MULTI_MAX: int = 100
+    SESSION_NAME_UPDATE_THRESHOLD: int = 10

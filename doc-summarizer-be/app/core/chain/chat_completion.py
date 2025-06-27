@@ -1,28 +1,15 @@
-from langchain_nvidia_ai_endpoints import ChatNVIDIA
-from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_core.runnables import RunnableLambda
+from app.core.chain.base_completion import CompletionBase
 from app.core.chain.prompts import get_chat_prompt_template
-from app.core.config import Settings
 from app.core.models.chat_model import TransformedChatModel
 from app.core.models.completion_model import CompletionResponse
 from typing import Any, AsyncGenerator, AsyncIterator, List
 import logging
 
 
-class Completion:
+class ChatCompletion(CompletionBase):
     def __init__(self):
-        self.retry_count = 3
-        rate_limiter = InMemoryRateLimiter(
-            # <-- Super slow! Sadly, we can only make a request once every 10 seconds!!
-            requests_per_second=0.1,
-            # Wake up every 100 ms to check whether allowed to make a request,
-            check_every_n_seconds=0.1,
-            max_bucket_size=10,  # Controls the maximum burst size.
-        )
-        self.model = ChatNVIDIA(
-            **Settings.NVIDIA_MODEL_CONFIG,
-            rate_limiter=rate_limiter
-        )
+        super().__init__()
         chat_prompt_template = get_chat_prompt_template()
         self.chain = chat_prompt_template | self.model
 
@@ -65,4 +52,4 @@ class Completion:
         ).astream({"query": query, "context": context, "chat_history": chat_history})
 
 
-chat_completion = Completion()
+chat_completion = ChatCompletion()

@@ -1,4 +1,5 @@
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import PromptTemplate
 
 
 def get_chat_prompt_template() -> ChatPromptTemplate:
@@ -16,3 +17,9 @@ def get_chat_prompt_template() -> ChatPromptTemplate:
             MessagesPlaceholder(variable_name="messages"),
             ("human", "{user_input}")
         ])
+
+
+session_name_prompt_template = PromptTemplate.from_template(
+    """Generate a session name based on the following context: {context}. 
+    The session name should be concise and relevant to the content of the context.
+    Please keep the session name short, ideally no more than 5 words.""")

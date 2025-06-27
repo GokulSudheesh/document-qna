@@ -1,8 +1,7 @@
 import os
 import sys
 from dotenv import load_dotenv
-from enum import StrEnum
-from app.core.models.file import FileType
+from app.core.models.enum import Environment, FileType
 import logging
 
 logging.basicConfig(
@@ -14,12 +13,6 @@ logging.basicConfig(
 
 # Load environment variables from .env file
 load_dotenv()
-
-
-class Environment(StrEnum):
-    LOCAL = "local"
-    DEV = "dev"
-    PROD = "prod"
 
 
 class Settings():
@@ -54,3 +47,9 @@ class Settings():
     MAX_FILE_SIZE_STR: str = "5MB"
     ACCEPTED_FILE_TYPES: list[str] = [FileType.TEXT_TYPE, FileType.PDF_TYPE,
                                       FileType.DOC_TYPE, FileType.DOCX_TYPE, "txt", "pdf", "doc", "docx"]
+
+    # MongoDB configuration
+    MONGO_CONNECTION_STRING: str = os.getenv("MONGO_CONNECTION_STRING")
+    MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME")
+    MULTI_MAX: int = 100
+    SESSION_NAME_UPDATE_THRESHOLD: int = 10

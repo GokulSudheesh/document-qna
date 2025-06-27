@@ -16,6 +16,13 @@ services:
     volumes:
       - ./qdrant_data:/qdrant/storage
 
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    restart: always
+    container_name: mongodb
+    ports:
+      - 27017:27017
+
 configs:
   qdrant_config:
     content: |

@@ -7,7 +7,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from qdrant_client.http.models import Distance, VectorParams
-from app.core.models.docs import DocMetaData
+from app.core.models.file_model import DocMetaData
 import logging
 
 
@@ -60,6 +60,15 @@ class DocumentIndexer:
             return self.vector_store.as_retriever(search_type="similarity", search_kwargs={"k": top_k, 'filter': filter})
         except Exception as e:
             logging.info(f"Error creating retriever: {e}")
+            raise
+
+    async def delete_record(self, filter: models.Filter | None,) -> bool:
+        try:
+            await self.client.delete(collection_name=Settings.QDRANT_COLLECTION_NAME, points_selector=filter)
+            logging.info(f"Deleted record with filter: {filter}")
+            return True
+        except Exception as e:
+            logging.error(f"Error deleting record: {e}")
             raise
 
 

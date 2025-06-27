@@ -80,7 +80,7 @@ async def extract_files(files: List[UploadFile]):
         elif (file.content_type == FileType.TEXT_TYPE):
             content = await extract_txt(file_content)
         extracted_file_content.append({
-            "file_id": ObjectId().__str__(),
+            "file_id": str(ObjectId()),
             "file_name": file.filename,
             "file_type": file.content_type,
             "file_size": file.size,

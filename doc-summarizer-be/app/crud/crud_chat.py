@@ -25,8 +25,6 @@ class CRUDChat(CRUDBase[ChatModel, None, None]):
         return chat_history
 
     async def get_multi(self, db: AgnosticDatabase, *, session: Session, page: int = 0, page_break: bool = False) -> List[ChatHistoryItem]:  # noqa
-        # offset = {"skip": page * Settings.MULTI_MAX, "limit": Settings.MULTI_MAX} if page_break else {}  # noqa
-        # return await self.engine.find(self.model, self.model.session_id == session.id, **offset)
         offset = [{"$limit": Settings.MULTI_MAX},
                   {"$skip": page * Settings.MULTI_MAX}] if page_break else []
         chat_history = await self.engine.get_collection(ChatModel).aggregate(

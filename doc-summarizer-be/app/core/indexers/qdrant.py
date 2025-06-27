@@ -1,5 +1,6 @@
 from uuid import uuid4
 from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import AsyncQdrantClient, models
 from app.core.config import Settings
@@ -7,6 +8,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from qdrant_client.http.models import Distance, VectorParams
+from app.core.models.enum import Platform
 from app.core.models.file_model import DocMetaData
 import logging
 
@@ -15,13 +17,24 @@ class DocumentIndexer:
     def __init__(self):
         self.client = AsyncQdrantClient(
             url=Settings.QDRANT_CONNECTION_URL, prefer_grpc=True)
-        self.embeddings = NVIDIAEmbeddings(
-            model=Settings.NVIDIA_EMBEDDINGS_MODEL, api_key=Settings.NVIDIA_EMBEDDINGS_API_KEY)
         self.vector_store = None
         self.text_splitter = RecursiveCharacterTextSplitter(
             separators=['\n\n', '\n', ','],
             chunk_size=Settings.CHUNK_SIZE, chunk_overlap=200, add_start_index=True
         )
+        match Settings.PLATFORM_TO_USE:
+            case Platform.NVIDIA:
+                self.embeddings = NVIDIAEmbeddings(
+                    model=Settings.NVIDIA_EMBEDDINGS_MODEL,
+                    api_key=Settings.NVIDIA_EMBEDDINGS_API_KEY
+                )
+                self.vector_size = Settings.NVIDIA_VECTOR_SIZE
+            case Platform.OLLAMA:
+                self.embeddings = OllamaEmbeddings(
+                    base_url=Settings.OLLAMA_BASE_URL,
+                    model=Settings.OLLAMA_MODEL_NAME
+                )
+                self.vector_size = Settings.OLLAMA_VECTOR_SIZE
 
     async def index_documents(self, extracted_text: str, meta_data: DocMetaData) -> bool:
         try:
@@ -32,7 +45,7 @@ class DocumentIndexer:
                 await self.client.create_collection(
                     collection_name=Settings.QDRANT_COLLECTION_NAME,
                     vectors_config=VectorParams(
-                        size=Settings.VECTOR_SIZE, distance=Distance.COSINE),
+                        size=self.vector_size, distance=Distance.COSINE),
                 )
             self.vector_store = QdrantVectorStore.from_existing_collection(
                 collection_name=Settings.QDRANT_COLLECTION_NAME, embedding=self.embeddings)

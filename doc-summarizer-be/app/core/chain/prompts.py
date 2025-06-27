@@ -21,5 +21,7 @@ def get_chat_prompt_template() -> ChatPromptTemplate:
 
 session_name_prompt_template = PromptTemplate.from_template(
     """Generate a session name based on the following context: {context}. 
-    The session name should be concise and relevant to the content of the context.
-    Please keep the session name short, ideally no more than 5 words.""")
+    - The session name should be concise and relevant to the content of the context.
+    - Please keep the session name short, ideally no more than 5 words.
+    - The session name should not include any special characters or numbers.
+    - Just return the session name without any additional text or explanation.""")

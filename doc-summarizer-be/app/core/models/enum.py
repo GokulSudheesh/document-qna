@@ -17,3 +17,8 @@ class Environment(StrEnum):
 class MessageRole(StrEnum):
     USER = "user"
     ASSISTANT = "assistant"
+
+
+class Platform(StrEnum):
+    NVIDIA = "nvidia"
+    OLLAMA = "ollama"

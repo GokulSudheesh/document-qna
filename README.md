@@ -1,6 +1,6 @@
 # Document QnA App
 
-This is a document question and answer app that allows users to upload documents and ask questions about them.
+Document QnA app that allows users to upload documents and ask questions.
 
 **Stack Used** - FastAPI, MongoDB, Qdrant, and LangChain.
 

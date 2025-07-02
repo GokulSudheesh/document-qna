@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.main import api_router
 from app.core.config import Settings
 from contextlib import asynccontextmanager
@@ -14,6 +15,11 @@ async def app_init(app: FastAPI):
     yield
 
 app = FastAPI(title=Settings.PROJECT_NAME, lifespan=app_init,)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=Settings.ALLOWED_ORIGINS
+)
 
 
 @app.exception_handler(Exception)

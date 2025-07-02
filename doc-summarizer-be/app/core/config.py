@@ -67,3 +67,4 @@ class Settings():
     MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME")
     MULTI_MAX: int = 100
     SESSION_NAME_UPDATE_THRESHOLD: int = 10
+    ALLOWED_ORIGINS: list[str] = os.getenv("ALLOWED_ORIGINS").split(",")

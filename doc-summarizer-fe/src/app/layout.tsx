@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { NavigationBar } from "@/components/ui/navigation-bar";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/providers";
 
@@ -31,10 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <div className="h-full w-full flex flex-col">
-            <NavigationBar />
-            {children}
-          </div>
+          <div className="h-full w-full flex flex-col">{children}</div>
           <Toaster />
         </Providers>
       </body>

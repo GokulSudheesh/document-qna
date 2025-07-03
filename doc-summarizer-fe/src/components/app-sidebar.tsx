@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Session } from "@/client";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 type SessionItemProps = {
   session: Session;
@@ -50,6 +51,7 @@ export function AppSidebar({
   onCreateNewSession,
   onSelectSession,
 }: AppSidebarProps) {
+  const t = useTranslations();
   return (
     <Sidebar>
       <SidebarContent
@@ -69,10 +71,12 @@ export function AppSidebar({
             variant="ghost"
             onClick={onCreateNewSession}
           >
-            <span>New Chat</span>
+            <span>{t("newChat")}</span>
             <PlusIcon />
           </Button>
-          <SidebarGroupLabel className="text-md">Sessions</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-md">
+            {t("sessions")}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {sessions.map((session) => (

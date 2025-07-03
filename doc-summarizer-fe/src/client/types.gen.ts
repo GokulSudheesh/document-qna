@@ -40,10 +40,7 @@ export type ChatHistoryItem = {
      * Session Id
      */
     session_id: string;
-    /**
-     * Role
-     */
-    role: string;
+    role: MessageRole;
     /**
      * Message
      */
@@ -309,6 +306,11 @@ export type HttpValidationError = {
      */
     detail?: Array<ValidationError>;
 };
+
+/**
+ * MessageRole
+ */
+export type MessageRole = 'user' | 'assistant';
 
 /**
  * Reference

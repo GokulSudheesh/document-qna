@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { Session } from "@/client";
 import { AppSidebar } from "@/components/app-sidebar";
-import ThemeSwitcher from "@/components/ui/theme-switcher";
+import ChatWindow from "@/components/chat-window";
 import { useChat } from "./hooks";
+import { NavigationBar } from "@/components/ui/navigation-bar";
 
 type Props = {
   initialDataSessions: Session[];
@@ -22,12 +23,12 @@ const Chat = ({ initialDataSessions }: Props) => {
         sessions={chatSessions}
         onSelectSession={handleSessionChange}
       />
-      <main>
-        <div className="flex fixed top-2 right-2 z-50">
-          <ThemeSwitcher />
-        </div>
-        <SidebarTrigger className="mt-2 ms-2 w-9 h-9" />
-      </main>
+      <div className="flex flex-col w-full h-full">
+        <NavigationBar />
+        <main className="flex w-full h-[calc(100dvh-68.8px)] relative">
+          <ChatWindow chatHistory={chatHistory} />
+        </main>
+      </div>
     </SidebarProvider>
   );
 };

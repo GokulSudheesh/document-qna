@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
+from app.core.models.enum import MessageRole
 from app.core.models.generic_response import AppResponse
 
 
@@ -12,7 +13,7 @@ class ChatHistoryItem(BaseModel):
     id: str
     created: str
     session_id: str
-    role: str
+    role: MessageRole
     message: str
     references: Optional[List[ChatFileReference]]
 

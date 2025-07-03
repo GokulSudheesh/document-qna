@@ -1,29 +1,27 @@
 "use client";
 import React from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { chatHistoryApiV1ChatHistorySessionIdGet, Session } from "@/client";
-import { useQuery } from "@tanstack/react-query";
+import { Session } from "@/client";
 import { AppSidebar } from "@/components/app-sidebar";
 import ThemeSwitcher from "@/components/ui/theme-switcher";
+import { useChat } from "./hooks";
 
 type Props = {
   initialDataSessions: Session[];
 };
 
 const Chat = ({ initialDataSessions }: Props) => {
-  console.log("Initial Data Sessions:", initialDataSessions);
-  const sessionId = "685f07d1caa7391dbd45c23c";
-  const { data: chatHistory } = useQuery({
-    queryKey: ["chat-history", sessionId],
-    queryFn: () =>
-      chatHistoryApiV1ChatHistorySessionIdGet({
-        path: { session_id: sessionId },
-      }),
-  });
-  console.log("Chat History:", chatHistory);
+  const { currentSessionId, chatSessions, chatHistory, handleSessionChange } =
+    useChat({
+      initialDataSessions,
+    });
   return (
     <SidebarProvider>
-      <AppSidebar sessions={initialDataSessions} />
+      <AppSidebar
+        currentSessionId={currentSessionId}
+        sessions={chatSessions}
+        onSelectSession={handleSessionChange}
+      />
       <main>
         <div className="flex fixed top-2 right-2 z-50">
           <ThemeSwitcher />

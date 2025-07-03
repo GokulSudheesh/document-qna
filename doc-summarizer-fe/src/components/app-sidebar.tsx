@@ -12,13 +12,19 @@ import {
 import { Session } from "@/client";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 type SessionItemProps = {
   session: Session;
+  isSelected: boolean;
   onSelectSession?: (sessionId: string) => void;
 };
 
-const SessionItem = ({ session, onSelectSession }: SessionItemProps) => {
+const SessionItem = ({
+  session,
+  isSelected,
+  onSelectSession,
+}: SessionItemProps) => {
   const onSelectCallback = () => {
     if (!session.id) return;
     onSelectSession?.(session.id);
@@ -29,7 +35,9 @@ const SessionItem = ({ session, onSelectSession }: SessionItemProps) => {
       <SidebarMenuButton asChild size="lg">
         <Button
           variant="ghost"
-          className="w-full justify-start"
+          className={cn("w-full justify-start", {
+            "bg-accent text-accent-foreground": isSelected,
+          })}
           onClick={onSelectCallback}
         >
           <MessageSquare />
@@ -41,12 +49,14 @@ const SessionItem = ({ session, onSelectSession }: SessionItemProps) => {
 };
 
 type AppSidebarProps = {
+  currentSessionId?: string | null;
   sessions: Session[];
   onCreateNewSession?: () => void;
   onSelectSession?: (sessionId: string) => void;
 };
 
 export function AppSidebar({
+  currentSessionId,
   sessions,
   onCreateNewSession,
   onSelectSession,
@@ -82,6 +92,7 @@ export function AppSidebar({
               {sessions.map((session) => (
                 <SessionItem
                   key={session.id}
+                  isSelected={session.id === currentSessionId}
                   session={session}
                   onSelectSession={onSelectSession}
                 />

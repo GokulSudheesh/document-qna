@@ -21,6 +21,7 @@ interface IUseChatReturn {
   chatHistory: ChatHistoryItem[];
   chatSessions: Session[];
   handleSessionChange: (sessionId: string) => void;
+  handleSendMessage: (message: string) => void;
 }
 
 export const useChat = ({
@@ -48,10 +49,16 @@ export const useChat = ({
     setCurrentSessionId(sessionId);
   }, []);
 
+  const handleSendMessage = useCallback((message: string) => {
+    // Send the message to the current chat session
+    console.log("[LOG]", "Sending message:", message);
+  }, []);
+
   return {
     currentSessionId,
     chatHistory: chatHistory?.data?.data || [],
     chatSessions,
     handleSessionChange,
+    handleSendMessage,
   };
 };

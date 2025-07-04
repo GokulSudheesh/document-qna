@@ -12,10 +12,15 @@ type Props = {
 };
 
 const Chat = ({ initialDataSessions }: Props) => {
-  const { currentSessionId, chatSessions, chatHistory, handleSessionChange } =
-    useChat({
-      initialDataSessions,
-    });
+  const {
+    currentSessionId,
+    chatSessions,
+    chatHistory,
+    handleSessionChange,
+    handleSendMessage,
+  } = useChat({
+    initialDataSessions,
+  });
   return (
     <SidebarProvider>
       <AppSidebar
@@ -26,7 +31,10 @@ const Chat = ({ initialDataSessions }: Props) => {
       <div className="flex flex-col w-full h-full">
         <NavigationBar />
         <main className="flex w-full h-[calc(100dvh-68.8px)] relative">
-          <ChatWindow chatHistory={chatHistory} />
+          <ChatWindow
+            chatHistory={chatHistory}
+            handleSendMessage={handleSendMessage}
+          />
         </main>
       </div>
     </SidebarProvider>

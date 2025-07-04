@@ -1,4 +1,5 @@
 {
   "newChat": "New Chat",
-  "sessions": "Sessions"
+  "sessions": "Sessions",
+  "chatInputPlaceholder": "Send a message..."
 }

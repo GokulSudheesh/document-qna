@@ -25,6 +25,7 @@ const SessionItem = ({
   isSelected,
   onSelectSession,
 }: SessionItemProps) => {
+  const t = useTranslations();
   const onSelectCallback = () => {
     if (!session.id) return;
     onSelectSession?.(session.id);
@@ -41,7 +42,7 @@ const SessionItem = ({
           onClick={onSelectCallback}
         >
           <MessageSquare />
-          <span>{session.session_name}</span>
+          <span>{session.session_name || t("newChat")}</span>
         </Button>
       </SidebarMenuButton>
     </SidebarMenuItem>

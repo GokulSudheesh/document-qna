@@ -1,3 +1,4 @@
+import json
 from bson import ObjectId
 from qdrant_client import models
 from app import crud
@@ -83,13 +84,15 @@ async def get_stream_chat_response(db: AgnosticDatabase, session: Session, query
     logging.info(f"Extracted text: {extracted_text}")
     references = get_references(extracted_documents)
     message = ""
+    response_id = ObjectId()
     async for chunk in chat_completion.astream_with_retry(
         query=query,
         context=extracted_text,
         chat_history=chat_history
     ):
         message += chunk
-        yield f"event: {Settings.CHAT_STREAM_MESSAGE_EVENT}\ndata: {chunk}\n\n"
+        message_data = {"id": str(response_id), "message": chunk}
+        yield f"event: {Settings.CHAT_STREAM_MESSAGE_EVENT}\ndata: {json.dumps(message_data)}\n\n"
     logging.info(f"Final message: {message}")
     await crud.chat.create(
         db,
@@ -102,6 +105,7 @@ async def get_stream_chat_response(db: AgnosticDatabase, session: Session, query
     await crud.chat.create(
         db,
         obj_in=ChatModel(
+            id=response_id,
             session_id=session,
             role=MessageRole.ASSISTANT,
             message=message,
@@ -121,7 +125,8 @@ async def get_stream_chat_response(db: AgnosticDatabase, session: Session, query
     ])
     if (len(chat_history) % Settings.SESSION_NAME_UPDATE_THRESHOLD == 2):
         await update_session_name(db, session, chat_history=chat_history)
-    yield f"event: {Settings.CHAT_STREAM_REFERENCES_EVENT}\ndata: {references}\n\n"
+    references_data = {"id": str(response_id), "references": references}
+    yield f"event: {Settings.CHAT_STREAM_REFERENCES_EVENT}\ndata: {json.dumps(references_data)}\n\n"
 
 
 async def update_session_name(db: AgnosticDatabase, session: Session, chat_history: List[TransformedChatModel] | None = []) -> Session:

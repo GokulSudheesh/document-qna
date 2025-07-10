@@ -2,5 +2,6 @@
   "newChat": "New Chat",
   "sessions": "Sessions",
   "chatInputPlaceholder": "Send a message...",
-  "chatSSEError": "Something went wrong while processing your request. Please try again."
+  "chatSSEError": "Something went wrong while processing your request. Please try again.",
+  "genericErrorMessage": "Something went wrong. Please try again later."
 }

@@ -19,6 +19,7 @@ const Chat = ({ initialDataSessions }: Props) => {
     currentChatState,
     isFetchingChatHistory,
     handleSessionChange,
+    handleSessionDelete,
     handleSendMessage,
   } = useChat({
     initialDataSessions,
@@ -29,6 +30,7 @@ const Chat = ({ initialDataSessions }: Props) => {
         currentSessionId={currentSessionId}
         sessions={chatSessions}
         onSelectSession={handleSessionChange}
+        onDeleteSession={handleSessionDelete}
       />
       <div className="flex flex-col w-full h-full">
         <NavigationBar />

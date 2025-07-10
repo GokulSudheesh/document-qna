@@ -1,4 +1,4 @@
-import { MessageSquare, PlusIcon } from "lucide-react";
+import { MessageSquare, PlusIcon, Trash } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,39 +13,58 @@ import { Session } from "@/client";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 type SessionItemProps = {
   session: Session;
   isSelected: boolean;
   onSelectSession?: (sessionId: string) => void;
+  onDeleteSession?: (sessionId: string) => void;
 };
 
 const SessionItem = ({
   session,
   isSelected,
   onSelectSession,
+  onDeleteSession,
 }: SessionItemProps) => {
   const t = useTranslations();
   const onSelectCallback = () => {
     if (!session.id) return;
     onSelectSession?.(session.id);
   };
+  const onDeleteCallback = () => {
+    if (!session.id) return;
+    onDeleteSession?.(session.id);
+  };
 
   const sessionName = session.session_name || t("newChat");
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild size="lg">
-        <Button
-          variant="ghost"
-          className={cn("w-full justify-start", {
-            "bg-accent text-accent-foreground": isSelected,
-          })}
-          onClick={onSelectCallback}
-        >
-          <MessageSquare />
-          <span title={sessionName}>{sessionName}</span>
-        </Button>
+      <SidebarMenuButton asChild size="lg" className="p-0">
+        <div className="relative flex w-full h-full group/item">
+          <Button
+            variant="ghost"
+            className={cn("w-full py-6 justify-start", {
+              "bg-accent text-accent-foreground": isSelected,
+            })}
+            onClick={onSelectCallback}
+          >
+            <MessageSquare />
+            <span title={sessionName}>{sessionName}</span>
+          </Button>
+          <Button
+            as={motion.button}
+            whileTap={{ scale: 0.9 }}
+            size="icon"
+            className="hidden group-hover/item:flex absolute right-1 bottom-1/2 translate-y-1/2"
+            variant="outline"
+            onClick={onDeleteCallback}
+          >
+            <Trash />
+          </Button>
+        </div>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -56,6 +75,7 @@ type AppSidebarProps = {
   sessions: Session[];
   onCreateNewSession?: () => void;
   onSelectSession?: (sessionId: string) => void;
+  onDeleteSession?: (sessionId: string) => void;
 };
 
 export function AppSidebar({
@@ -63,6 +83,7 @@ export function AppSidebar({
   sessions,
   onCreateNewSession,
   onSelectSession,
+  onDeleteSession,
 }: AppSidebarProps) {
   const t = useTranslations();
   return (
@@ -98,6 +119,7 @@ export function AppSidebar({
                   isSelected={session.id === currentSessionId}
                   session={session}
                   onSelectSession={onSelectSession}
+                  onDeleteSession={onDeleteSession}
                 />
               ))}
             </SidebarMenu>

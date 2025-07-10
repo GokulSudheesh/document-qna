@@ -40,3 +40,7 @@
 .chat-mkdwn-wrapper td {
   padding: 5px;
 }
+
+.chat-mkdwn-wrapper p {
+  margin-bottom: 5px;
+}

@@ -7,13 +7,14 @@ import {
   Reference,
   Session,
 } from "@/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { API_URL } from "@/config";
 import { v4 as uuidv4 } from "uuid";
 import { ChatSSEEvent, ChatState, TChatState } from "@/types/chat";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { deleteSession } from "@/apiHelpers/session";
 
 // Refetch sessions list for every 10 chat history items
 const SESSIONS_LIST_REFETCH_COUNT = 10;
@@ -34,6 +35,7 @@ interface IUseChatReturn {
   currentChatState: TChatState;
   isFetchingChatHistory?: boolean;
   handleSessionChange: (sessionId: string) => void;
+  handleSessionDelete: (sessionId: string) => void;
   handleSendMessage: (message: string) => void;
 }
 
@@ -284,6 +286,29 @@ export const useChat = ({
     ]
   );
 
+  const { mutate: deleteSessionMutate } = useMutation({
+    mutationFn: deleteSession,
+    onError: () => {
+      toast.error(t("genericErrorMessage"));
+    },
+  });
+
+  const handleSessionDelete = useCallback(
+    (sessionId: string) => {
+      queryClient.setQueryData(["chat-sessions"], (oldSessions: Session[]) => {
+        return oldSessions.filter((s) => s.id !== sessionId);
+      });
+      deleteSessionMutate(sessionId, {
+        onSettled: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["chat-sessions"],
+          });
+        },
+      });
+    },
+    [queryClient]
+  );
+
   return {
     currentSessionId,
     chatHistory: chatHistory || [],
@@ -291,6 +316,7 @@ export const useChat = ({
     currentChatState,
     isFetchingChatHistory,
     handleSessionChange,
+    handleSessionDelete,
     handleSendMessage,
   };
 };

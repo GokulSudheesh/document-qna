@@ -3,5 +3,11 @@
   "sessions": "Sessions",
   "chatInputPlaceholder": "Send a message...",
   "chatSSEError": "Something went wrong while processing your request. Please try again.",
-  "genericErrorMessage": "Something went wrong. Please try again later."
+  "genericErrorMessage": "Something went wrong. Please try again later.",
+  "deleteSession": {
+    "title": "Delete Session",
+    "content": "Are you sure you want to delete this session? This action cannot be undone."
+  },
+  "yes": "Yes",
+  "no": "No"
 }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 import {
   chatHistoryApiV1ChatHistorySessionIdGet,
   ChatHistoryItem,
@@ -15,6 +15,7 @@ import { ChatSSEEvent, ChatState, TChatState } from "@/types/chat";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { deleteSession } from "@/apiHelpers/session";
+import { AlertDialogueContext } from "@/providers/AlertDialogueProvider";
 
 // Refetch sessions list for every 10 chat history items
 const SESSIONS_LIST_REFETCH_COUNT = 10;
@@ -42,6 +43,7 @@ interface IUseChatReturn {
 export const useChat = ({
   initialDataSessions,
 }: IUseChatArgs): IUseChatReturn => {
+  const { setDialogue } = useContext(AlertDialogueContext);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(
     initialDataSessions?.[0]?.id || null
   );
@@ -293,7 +295,7 @@ export const useChat = ({
     },
   });
 
-  const handleSessionDelete = useCallback(
+  const handleSessionDeleteCallback = useCallback(
     (sessionId: string) => {
       queryClient.setQueryData(["chat-sessions"], (oldSessions: Session[]) => {
         return oldSessions.filter((s) => s.id !== sessionId);
@@ -307,6 +309,21 @@ export const useChat = ({
       });
     },
     [queryClient]
+  );
+
+  const handleSessionDelete = useCallback(
+    (sessionId: string) => {
+      setDialogue?.({
+        isOpen: true,
+        type: "warning",
+        title: t("deleteSession.title"),
+        content: t("deleteSession.content"),
+        primaryCtaLabel: t("yes"),
+        secondaryCtaLabel: t("no"),
+        primaryCtaHandler: () => handleSessionDeleteCallback(sessionId),
+      });
+    },
+    [setDialogue, handleSessionDeleteCallback]
   );
 
   return {

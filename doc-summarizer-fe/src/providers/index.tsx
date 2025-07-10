@@ -2,6 +2,7 @@ import React from "react";
 import ThemeProvider from "./ThemeProvider";
 import QueryProvider from "./QueryProvider";
 import { NextIntlClientProvider } from "next-intl";
+import AlertDialogueProvider from "./AlertDialogueProvider";
 
 const Providers = ({
   children,
@@ -16,7 +17,9 @@ const Providers = ({
       disableTransitionOnChange
     >
       <QueryProvider>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <AlertDialogueProvider>{children}</AlertDialogueProvider>
+        </NextIntlClientProvider>
       </QueryProvider>
     </ThemeProvider>
   );

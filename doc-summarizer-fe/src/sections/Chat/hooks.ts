@@ -12,6 +12,8 @@ import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { API_URL } from "@/config";
 import { v4 as uuidv4 } from "uuid";
 import { ChatState, TChatState } from "@/types/chat";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const getSessions = async (): Promise<Session[]> => {
   const data = await listSessionsApiV1SessionListGet();
@@ -27,6 +29,7 @@ interface IUseChatReturn {
   chatHistory: ChatHistoryItem[];
   chatSessions: Session[];
   currentChatState: TChatState;
+  isFetchingChatHistory?: boolean;
   handleSessionChange: (sessionId: string) => void;
   handleSendMessage: (message: string) => void;
 }
@@ -39,6 +42,7 @@ export const useChat = ({
   );
   const [chatSessionsState, setChatSessionsState] = useState<ChatState[]>([]);
 
+  const t = useTranslations();
   const currentChatState = useMemo(
     () =>
       chatSessionsState.find((state) => state.sessionId === currentSessionId)
@@ -48,7 +52,7 @@ export const useChat = ({
 
   const queryClient = useQueryClient();
 
-  const { data: chatHistory } = useQuery({
+  const { data: chatHistory, isFetching: isFetchingChatHistory } = useQuery({
     enabled: !!currentSessionId,
     queryKey: ["chat-history", currentSessionId],
     queryFn: () =>
@@ -60,7 +64,7 @@ export const useChat = ({
   const { data: chatSessions } = useQuery({
     queryKey: ["chat-sessions"],
     queryFn: () => getSessions(),
-    initialData: initialDataSessions,
+    placeholderData: initialDataSessions,
   });
 
   const handleSessionChange = useCallback((sessionId: string) => {
@@ -194,6 +198,7 @@ export const useChat = ({
         },
         onerror(err) {
           console.error("[SSE] Error:", err);
+          toast.error(t("chatSSEError"));
           setChatState(currentSessionId, undefined);
           throw err; // rethrow to stop the operation
         },
@@ -205,8 +210,9 @@ export const useChat = ({
   return {
     currentSessionId,
     chatHistory: chatHistory?.data?.data || [],
-    chatSessions,
+    chatSessions: chatSessions || [],
     currentChatState,
+    isFetchingChatHistory,
     handleSessionChange,
     handleSendMessage,
   };

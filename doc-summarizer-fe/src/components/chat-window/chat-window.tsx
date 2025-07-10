@@ -7,15 +7,21 @@ import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Cursor from "./cursor";
+import { Spinner } from "@/components/ui/spinner";
 
 const SCROLL_BOTTOM_THRESHOLD = 75; // Threshold to determine if we are at the bottom
 
 type Props = {
   chatHistory: ChatHistoryItem[];
   currentChatState: TChatState;
+  isFetchingChatHistory?: boolean;
 };
 
-const ChatWindow = ({ chatHistory, currentChatState }: Props) => {
+const ChatWindow = ({
+  chatHistory,
+  currentChatState,
+  isFetchingChatHistory,
+}: Props) => {
   const [showScrollBottomButton, setShowScrollBottomButton] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const chatLength = chatHistory.length;
@@ -57,6 +63,12 @@ const ChatWindow = ({ chatHistory, currentChatState }: Props) => {
     if (containerRef?.current) scrollToBottom(containerRef?.current);
   }, [chatLength]);
 
+  if (isFetchingChatHistory)
+    return (
+      <div className="flex justify-center h-full w-full min-h-0">
+        <Spinner className="m-auto text-sidebar-foreground/70" size="large" />
+      </div>
+    );
   return (
     <div className="relative flex h-full min-h-0">
       <div

@@ -7,15 +7,22 @@ import { TChatState } from "@/types/chat";
 type Props = {
   currentChatState: TChatState;
   chatHistory: ChatHistoryItem[];
+  isFetchingChatHistory?: boolean;
   handleSendMessage: (message: string) => void;
 };
 
-const Chat = ({ chatHistory, currentChatState, handleSendMessage }: Props) => {
+const Chat = ({
+  chatHistory,
+  currentChatState,
+  isFetchingChatHistory,
+  handleSendMessage,
+}: Props) => {
   return (
     <div className="flex flex-col w-full h-full text-base">
       <ChatWindow
         chatHistory={chatHistory}
         currentChatState={currentChatState}
+        isFetchingChatHistory={isFetchingChatHistory}
       />
       <div className="flex mx-16 mt-auto py-4">
         <ChatInput

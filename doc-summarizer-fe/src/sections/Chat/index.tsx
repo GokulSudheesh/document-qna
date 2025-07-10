@@ -17,6 +17,7 @@ const Chat = ({ initialDataSessions }: Props) => {
     chatSessions,
     chatHistory,
     currentChatState,
+    isFetchingChatHistory,
     handleSessionChange,
     handleSendMessage,
   } = useChat({
@@ -35,6 +36,7 @@ const Chat = ({ initialDataSessions }: Props) => {
           <ChatWindow
             chatHistory={chatHistory}
             currentChatState={currentChatState}
+            isFetchingChatHistory={isFetchingChatHistory}
             handleSendMessage={handleSendMessage}
           />
         </main>

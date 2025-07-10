@@ -3,12 +3,19 @@ import {
   defaultShouldDehydrateQuery,
   isServer,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 60 * 1000,
+        throwOnError(_error, _query) {
+          // console.log("[LOG] Query failed:", error, query);
+          toast.error("Something went wrong. Please try again.");
+          return false;
+        },
+        retry: 1,
       },
       dehydrate: {
         // include pending queries in dehydration

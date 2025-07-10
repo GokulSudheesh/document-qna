@@ -1,5 +1,6 @@
 {
   "newChat": "New Chat",
   "sessions": "Sessions",
-  "chatInputPlaceholder": "Send a message..."
+  "chatInputPlaceholder": "Send a message...",
+  "chatSSEError": "Something went wrong while processing your request. Please try again."
 }

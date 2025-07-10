@@ -35,13 +35,26 @@ const buttonVariants = cva(
   }
 );
 
-type TButtonProps = React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-    isLoading?: boolean;
-  };
+type PolymorphicAsProp<E extends React.ElementType> = {
+  as?: E;
+};
 
-function Button({
+type PolymorphicProps<E extends React.ElementType> = React.PropsWithChildren<
+  React.ComponentPropsWithoutRef<E> & PolymorphicAsProp<E>
+>;
+
+const defaultElement = "button";
+
+type TButtonProps<E extends React.ElementType = typeof defaultElement> =
+  PolymorphicProps<E> &
+    React.ComponentProps<"button"> &
+    VariantProps<typeof buttonVariants> & {
+      asChild?: boolean;
+      isLoading?: boolean;
+    };
+
+function Button<E extends React.ElementType = typeof defaultElement>({
+  as,
   className,
   variant,
   size,
@@ -49,8 +62,8 @@ function Button({
   isLoading,
   children,
   ...props
-}: TButtonProps) {
-  const Comp = asChild ? Slot : "button";
+}: TButtonProps<E>) {
+  const Comp = asChild ? Slot : as ?? defaultElement;
 
   return (
     <Comp

@@ -1,23 +1,41 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Markdown from "markdown-to-jsx";
 import { ChatHistoryItem } from "@/client/types.gen";
 import { Bot, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TChatState } from "@/types/chat";
-import styles from "./style.module.css";
-
-const Cursor = () => {
-  return <span className={cn(styles.cursor, styles["cursor-blink"])} />;
-};
+import Cursor from "./cursor";
 
 type Props = {
+  className?: string;
   currentChatState: TChatState;
+  handleHeightChange?: (height: number) => void;
 } & ChatHistoryItem;
 
-const ChatItem = ({ message, role, references, currentChatState }: Props) => {
+const ChatItem = ({
+  className,
+  id,
+  message,
+  role,
+  references,
+  currentChatState,
+  handleHeightChange,
+}: Props) => {
+  const elementRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (!node) return;
+      const resizeObserver = new ResizeObserver(() => {
+        handleHeightChange?.(node.clientHeight);
+      });
+      resizeObserver.observe(node);
+    },
+    [id]
+  );
+
   return (
     <div
-      className={cn("w-full flex gap-4 p-4 last:mb-4", {
+      ref={elementRef}
+      className={cn("w-full flex gap-4 p-4", className, {
         "bg-accent text-accent-foreground": role === "assistant",
       })}
     >

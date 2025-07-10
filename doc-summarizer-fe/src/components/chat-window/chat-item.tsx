@@ -5,6 +5,7 @@ import { Bot, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TChatState } from "@/types/chat";
 import Cursor from "./cursor";
+import styles from "./style.module.css";
 
 type Props = {
   className?: string;
@@ -50,6 +51,7 @@ const ChatItem = ({
       )}
       <div className="flex">
         <Markdown
+          className={styles["chat-mkdwn-wrapper"]}
           options={{
             overrides: {
               script: {

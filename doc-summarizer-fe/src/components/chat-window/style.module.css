@@ -21,3 +21,22 @@
     opacity: 0;
   }
 }
+
+.chat-mkdwn-wrapper table,
+.chat-mkdwn-wrapper th,
+.chat-mkdwn-wrapper td {
+  border: 1px solid;
+  border-collapse: collapse;
+  /* Replace with your desired border color */
+  border-color: currentColor;
+}
+
+.chat-mkdwn-wrapper table {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.chat-mkdwn-wrapper th,
+.chat-mkdwn-wrapper td {
+  padding: 5px;
+}

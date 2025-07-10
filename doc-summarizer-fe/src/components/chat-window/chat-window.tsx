@@ -65,12 +65,12 @@ const ChatWindow = ({
 
   if (isFetchingChatHistory)
     return (
-      <div className="flex justify-center h-full w-full min-h-0">
+      <div className="flex justify-center w-full h-full min-h-0">
         <Spinner className="m-auto text-sidebar-foreground/70" size="large" />
       </div>
     );
   return (
-    <div className="relative flex h-full min-h-0">
+    <div className="relative flex w-full h-full min-h-0">
       <div
         ref={containerRef}
         className="flex flex-col gap-2 w-full max-h-full overflow-y-auto

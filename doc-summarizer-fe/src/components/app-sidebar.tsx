@@ -31,6 +31,8 @@ const SessionItem = ({
     onSelectSession?.(session.id);
   };
 
+  const sessionName = session.session_name || t("newChat");
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild size="lg">
@@ -42,7 +44,7 @@ const SessionItem = ({
           onClick={onSelectCallback}
         >
           <MessageSquare />
-          <span>{session.session_name || t("newChat")}</span>
+          <span title={sessionName}>{sessionName}</span>
         </Button>
       </SidebarMenuButton>
     </SidebarMenuItem>

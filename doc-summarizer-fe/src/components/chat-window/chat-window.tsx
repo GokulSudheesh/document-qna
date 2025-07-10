@@ -2,12 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { ChatHistoryItem } from "@/client/types.gen";
 import ChatItem from "./chat-item";
 import { scrollToBottom } from "./utils";
+import { TChatState } from "@/types/chat";
 
 type Props = {
   chatHistory: ChatHistoryItem[];
+  currentChatState: TChatState;
 };
 
-const ChatWindow = ({ chatHistory }: Props) => {
+const ChatWindow = ({ chatHistory, currentChatState }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chatLength = chatHistory.length;
 
@@ -28,8 +30,16 @@ const ChatWindow = ({ chatHistory }: Props) => {
         dark:[&::-webkit-scrollbar-track]:bg-neutral-700
         dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
     >
-      {chatHistory.map((item) => (
-        <ChatItem key={item.id} {...item} />
+      {chatHistory.map((item, index) => (
+        <ChatItem
+          key={item.id}
+          {...item}
+          currentChatState={
+            index === chatHistory.length - 1 && item.role === "assistant"
+              ? currentChatState
+              : undefined
+          }
+        />
       ))}
     </div>
   );

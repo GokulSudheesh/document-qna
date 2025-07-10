@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   chatHistoryApiV1ChatHistorySessionIdGet,
   ChatHistoryItem,
@@ -11,6 +11,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { API_URL } from "@/config";
 import { v4 as uuidv4 } from "uuid";
+import { ChatState, TChatState } from "@/types/chat";
 
 const getSessions = async (): Promise<Session[]> => {
   const data = await listSessionsApiV1SessionListGet();
@@ -25,6 +26,7 @@ interface IUseChatReturn {
   currentSessionId: string | null;
   chatHistory: ChatHistoryItem[];
   chatSessions: Session[];
+  currentChatState: TChatState;
   handleSessionChange: (sessionId: string) => void;
   handleSendMessage: (message: string) => void;
 }
@@ -34,6 +36,14 @@ export const useChat = ({
 }: IUseChatArgs): IUseChatReturn => {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(
     initialDataSessions?.[0]?.id || null
+  );
+  const [chatSessionsState, setChatSessionsState] = useState<ChatState[]>([]);
+
+  const currentChatState = useMemo(
+    () =>
+      chatSessionsState.find((state) => state.sessionId === currentSessionId)
+        ?.status,
+    [chatSessionsState, currentSessionId]
   );
 
   const queryClient = useQueryClient();
@@ -124,6 +134,15 @@ export const useChat = ({
     [queryClient]
   );
 
+  const setChatState = useCallback(
+    (sessionId: string, status: TChatState) =>
+      setChatSessionsState((prev) => [
+        ...prev.filter((state) => state.sessionId !== sessionId),
+        { sessionId, status },
+      ]),
+    []
+  );
+
   const handleSendMessage = useCallback(
     (message: string) => {
       // Send the message to the current chat session
@@ -137,6 +156,7 @@ export const useChat = ({
         references: null,
       });
       console.log("[LOG]", "Sending message:", message);
+      setChatState(currentSessionId, "loading");
       fetchEventSource(`${API_URL}/api/v1/chat/sse/${currentSessionId}`, {
         method: "POST",
         headers: {
@@ -147,11 +167,11 @@ export const useChat = ({
         }),
         async onopen(response) {
           console.log("[SSE] Connection opened.");
-          console.log(response);
         },
         onmessage(ev) {
           try {
             console.log("[SSE] Message received:", ev.data);
+            setChatState(currentSessionId, "stream");
             const data = JSON.parse(ev.data);
             switch (ev.event) {
               case "message":
@@ -170,20 +190,23 @@ export const useChat = ({
         },
         onclose() {
           console.log("[SSE] Connection closed.");
+          setChatState(currentSessionId, undefined);
         },
         onerror(err) {
           console.error("[SSE] Error:", err);
+          setChatState(currentSessionId, undefined);
           throw err; // rethrow to stop the operation
         },
       });
     },
-    [currentSessionId, appendToChatHistory, updateAIChatItem]
+    [currentSessionId, appendToChatHistory, updateAIChatItem, setChatState]
   );
 
   return {
     currentSessionId,
     chatHistory: chatHistory?.data?.data || [],
     chatSessions,
+    currentChatState,
     handleSessionChange,
     handleSendMessage,
   };

@@ -3,10 +3,18 @@ import Markdown from "markdown-to-jsx";
 import { ChatHistoryItem } from "@/client/types.gen";
 import { Bot, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TChatState } from "@/types/chat";
+import styles from "./style.module.css";
 
-type Props = {} & ChatHistoryItem;
+const Cursor = () => {
+  return <span className={cn(styles.cursor, styles["cursor-blink"])} />;
+};
 
-const ChatItem = ({ id, message, role, references }: Props) => {
+type Props = {
+  currentChatState: TChatState;
+} & ChatHistoryItem;
+
+const ChatItem = ({ message, role, references, currentChatState }: Props) => {
   return (
     <div
       className={cn("w-full flex gap-4 p-4 last:mb-4", {
@@ -23,7 +31,21 @@ const ChatItem = ({ id, message, role, references }: Props) => {
         </div>
       )}
       <div className="flex">
-        <Markdown options={{ disableParsingRawHTML: true }}>{message}</Markdown>
+        <Markdown
+          options={{
+            overrides: {
+              script: {
+                component: () => <></>, // Disable script tags
+              },
+              Cursor: {
+                component: Cursor,
+              },
+            },
+            // disableParsingRawHTML: true,
+          }}
+        >
+          {currentChatState === "stream" ? message + "<Cursor />" : message}
+        </Markdown>
       </div>
     </div>
   );

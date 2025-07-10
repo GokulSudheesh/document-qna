@@ -16,6 +16,7 @@ const Chat = ({ initialDataSessions }: Props) => {
     currentSessionId,
     chatSessions,
     chatHistory,
+    currentChatState,
     handleSessionChange,
     handleSendMessage,
   } = useChat({
@@ -33,6 +34,7 @@ const Chat = ({ initialDataSessions }: Props) => {
         <main className="flex w-full h-[calc(100dvh-68.8px)] relative">
           <ChatWindow
             chatHistory={chatHistory}
+            currentChatState={currentChatState}
             handleSendMessage={handleSendMessage}
           />
         </main>

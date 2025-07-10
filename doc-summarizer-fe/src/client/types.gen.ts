@@ -267,6 +267,10 @@ export type GetSessionById = {
      */
     created: string;
     /**
+     * Updated
+     */
+    updated: string;
+    /**
      * Files
      */
     files: Array<ExtractedFileResponse>;
@@ -334,6 +338,10 @@ export type Session = {
      * Created
      */
     created?: string;
+    /**
+     * Updated
+     */
+    updated?: string;
     /**
      * Session Name
      */

@@ -4,6 +4,7 @@ from app.core.models.chat_model import ChatModel
 from app.core.models.file_model import FileModel
 from app.core.models.session_model import Session, UpdateSession
 from motor.core import AgnosticDatabase
+from app.core.models.util import datetime_now_sec
 from app.core.utils.qdrant import delete_indexed_record
 from app.crud.base import CRUDBase
 from app.core.config import Settings
@@ -21,12 +22,15 @@ class CRUDSession(CRUDBase[Session, None, UpdateSession]):
         motor_cursor = collection.aggregate([
             *offset,
             # Sort by created date descending
-            {"$sort": {"created": -1}},
+            {"$sort": {"updated": -1}},
             {
                 "$project":
                     {
                         "created": {
                             "$toString": "$created"
+                        },
+                        "updated": {
+                            "$toString": "$updated"
                         },
                         "session_name": 1,
                         "files": 1,
@@ -87,6 +91,9 @@ class CRUDSession(CRUDBase[Session, None, UpdateSession]):
                     "created": {
                         "$toString": "$created"
                     },
+                    "updated": {
+                        "$toString": "$updated"
+                    },
                     "files": 1,
                     "session_name": 1
                 }
@@ -102,6 +109,12 @@ class CRUDSession(CRUDBase[Session, None, UpdateSession]):
         await self.engine.remove(ChatModel, ChatModel.session_id == id)
         await self.engine.delete(db_obj)
         return db_obj
+
+    async def update_session_updated_at(self, db: AgnosticDatabase, *, db_obj: Session) -> Session:
+        new_session_data = UpdateSession(
+            updated=datetime_now_sec()
+        )
+        return await self.update(db, db_obj=db_obj, obj_in=new_session_data)
 
 
 session = CRUDSession(Session)

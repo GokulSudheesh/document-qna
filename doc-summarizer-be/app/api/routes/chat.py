@@ -18,6 +18,7 @@ async def chat(
     db: AgnosticDatabase = Depends(deps.get_db),
     session: Session = Depends(deps.get_session)
 ) -> ChatResponse:
+    await crud.session.update_session_updated_at(db, db_obj=session)
     past_chat_history = await crud.chat.get_transformed_chat_history(db, session=session)
     response = await get_chat_response(
         db=db,
@@ -37,6 +38,7 @@ async def chat_stream(
 ) -> StreamingResponse:
     logging.info(
         f"Streaming chat response for session_id: {session.id}, query: {body.query}")
+    await crud.session.update_session_updated_at(db, db_obj=session)
     past_chat_history = await crud.chat.get_transformed_chat_history(db, session=session)
     return StreamingResponse(get_stream_chat_response(
         db=db,

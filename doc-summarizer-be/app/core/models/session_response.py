@@ -17,6 +17,7 @@ class GetSessionByID(BaseModel):
     id: str
     session_name: str
     created: str
+    updated: str
     files: List[ExtractedFileResponse]
 
 

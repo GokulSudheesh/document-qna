@@ -15,6 +15,9 @@ import { ChatSSEEvent, ChatState, TChatState } from "@/types/chat";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+// Refetch sessions list for every 10 chat history items
+const SESSIONS_LIST_REFETCH_COUNT = 10;
+
 const getSessions = async (): Promise<Session[]> => {
   const data = await listSessionsApiV1SessionListGet();
   return data?.data?.data || [];
@@ -54,7 +57,9 @@ export const useChat = ({
 
   const { data: chatHistory, isFetching: isFetchingChatHistory } = useQuery({
     enabled: !!currentSessionId,
+    refetchOnWindowFocus: false,
     queryKey: ["chat-history", currentSessionId],
+    select: (data) => data?.data?.data || [],
     queryFn: () =>
       chatHistoryApiV1ChatHistorySessionIdGet({
         path: { session_id: currentSessionId },
@@ -173,6 +178,20 @@ export const useChat = ({
     []
   );
 
+  const updateSessionsUpdatedAtTime = useCallback(
+    (sessionId: string) => {
+      queryClient.setQueryData(["chat-sessions"], (oldSessions: Session[]) => {
+        const session = oldSessions.find((s) => s.id === sessionId);
+        if (!session) return oldSessions;
+        return [
+          { ...session, updated: new Date().toISOString() },
+          ...oldSessions.filter((s) => s.id !== sessionId),
+        ];
+      });
+    },
+    [queryClient]
+  );
+
   const handleMessageEvent = useCallback(
     (sessionId: string, ev: ChatSSEEvent) => {
       try {
@@ -201,6 +220,18 @@ export const useChat = ({
     [setChatState, updateAIChatItem, updateAIChatReferences]
   );
 
+  const handleConnectionClose = useCallback(
+    (sessionId: string) => {
+      console.log("[SSE] Connection closed.");
+      setChatState(sessionId, undefined);
+      if ((chatHistory?.length ?? 0) % SESSIONS_LIST_REFETCH_COUNT === 0)
+        queryClient.invalidateQueries({
+          queryKey: ["chat-sessions"],
+        });
+    },
+    [queryClient, chatHistory, setChatState]
+  );
+
   const handleSendMessage = useCallback(
     (message: string) => {
       // Send the message to the current chat session
@@ -213,10 +244,14 @@ export const useChat = ({
         created: new Date().toISOString(),
         references: null,
       });
+      // Update the current session's last updated time
+      updateSessionsUpdatedAtTime(currentSessionId);
+      // Set the chat state to loading
       console.log("[LOG]", "Sending message:", message);
       setChatState(currentSessionId, "loading");
       fetchEventSource(`${API_URL}/api/v1/chat/sse/${currentSessionId}`, {
         method: "POST",
+        openWhenHidden: true,
         headers: {
           "Content-Type": "application/json",
         },
@@ -230,8 +265,7 @@ export const useChat = ({
           handleMessageEvent(currentSessionId, ev as ChatSSEEvent);
         },
         onclose() {
-          console.log("[SSE] Connection closed.");
-          setChatState(currentSessionId, undefined);
+          handleConnectionClose(currentSessionId);
         },
         onerror(err) {
           console.error("[SSE] Error:", err);
@@ -241,12 +275,18 @@ export const useChat = ({
         },
       });
     },
-    [currentSessionId, appendToChatHistory, setChatState, handleMessageEvent]
+    [
+      currentSessionId,
+      handleConnectionClose,
+      appendToChatHistory,
+      setChatState,
+      handleMessageEvent,
+    ]
   );
 
   return {
     currentSessionId,
-    chatHistory: chatHistory?.data?.data || [],
+    chatHistory: chatHistory || [],
     chatSessions: chatSessions || [],
     currentChatState,
     isFetchingChatHistory,

@@ -6,10 +6,23 @@ import { cn } from "@/lib/utils";
 import { TChatState } from "@/types/chat";
 import Cursor from "./cursor";
 import styles from "./style.module.css";
+import FileItem from "./file-item";
+import { motion, Variants } from "motion/react";
+
+const referencesContainerVariant: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+    },
+  },
+};
 
 type Props = {
   className?: string;
   currentChatState: TChatState;
+  isLastItem: boolean;
   handleHeightChange?: (height: number) => void;
 } & ChatHistoryItem;
 
@@ -20,6 +33,7 @@ const ChatItem = ({
   role,
   references,
   currentChatState,
+  isLastItem,
   handleHeightChange,
 }: Props) => {
   const elementRef = useCallback(
@@ -49,23 +63,37 @@ const ChatItem = ({
           <Bot />
         </div>
       )}
-      <div className="flex">
-        <Markdown
-          className={styles["chat-mkdwn-wrapper"]}
-          options={{
-            overrides: {
-              script: {
-                component: () => <></>, // Disable script tags
+      <div className="flex flex-col gap-4 w-full">
+        <div className="flex">
+          <Markdown
+            className={styles["chat-mkdwn-wrapper"]}
+            options={{
+              overrides: {
+                script: {
+                  component: () => <></>, // Disable script tags
+                },
+                Cursor: {
+                  component: Cursor,
+                },
               },
-              Cursor: {
-                component: Cursor,
-              },
-            },
-            // disableParsingRawHTML: true,
-          }}
-        >
-          {currentChatState === "stream" ? message + "<Cursor />" : message}
-        </Markdown>
+              // disableParsingRawHTML: true,
+            }}
+          >
+            {currentChatState === "stream" ? message + "<Cursor />" : message}
+          </Markdown>
+        </div>
+        {!!references?.length && (
+          <motion.div
+            className="flex flex-wrap gap-2"
+            variants={referencesContainerVariant}
+            initial={isLastItem ? "hidden" : "show"}
+            animate="show"
+          >
+            {references?.map((ref) => (
+              <FileItem key={ref.file_id} {...ref} />
+            ))}
+          </motion.div>
+        )}
       </div>
     </div>
   );

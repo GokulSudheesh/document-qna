@@ -11,7 +11,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { API_URL } from "@/config";
 import { v4 as uuidv4 } from "uuid";
-import { ChatState, TChatState } from "@/types/chat";
+import { ChatSSEEvent, ChatState, TChatState } from "@/types/chat";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
@@ -138,6 +138,32 @@ export const useChat = ({
     [queryClient]
   );
 
+  const updateAIChatReferences = useCallback(
+    (
+      sessionId: string,
+      { id, references }: { id: string; references: Reference[] | null }
+    ) => {
+      queryClient.setQueryData(
+        ["chat-history", sessionId],
+        (oldData: { data: ChatHistoryResponse; error: undefined }) => ({
+          ...oldData,
+          data: {
+            success: true,
+            data: oldData?.data?.data.map((item: ChatHistoryItem) =>
+              item.id === id
+                ? {
+                    ...item,
+                    references,
+                  }
+                : item
+            ),
+          },
+        })
+      );
+    },
+    [queryClient]
+  );
+
   const setChatState = useCallback(
     (sessionId: string, status: TChatState) =>
       setChatSessionsState((prev) => [
@@ -145,6 +171,34 @@ export const useChat = ({
         { sessionId, status },
       ]),
     []
+  );
+
+  const handleMessageEvent = useCallback(
+    (sessionId: string, ev: ChatSSEEvent) => {
+      try {
+        console.log("[SSE] Message received:", ev.data);
+        setChatState(sessionId, "stream");
+        ev.data = JSON.parse(ev.data);
+        switch (ev.event) {
+          case "message":
+            updateAIChatItem(sessionId, {
+              id: ev.data.id,
+              message: ev.data.message,
+              references: null,
+            });
+            return;
+          case "references":
+            updateAIChatReferences(sessionId, {
+              id: ev.data.id,
+              references: ev.data.references,
+            });
+            return;
+        }
+      } catch (error) {
+        console.error("[SSE] Error parsing data:", error);
+      }
+    },
+    [setChatState, updateAIChatItem, updateAIChatReferences]
   );
 
   const handleSendMessage = useCallback(
@@ -169,28 +223,11 @@ export const useChat = ({
         body: JSON.stringify({
           query: message,
         }),
-        async onopen(response) {
+        async onopen(_response) {
           console.log("[SSE] Connection opened.");
         },
         onmessage(ev) {
-          try {
-            console.log("[SSE] Message received:", ev.data);
-            setChatState(currentSessionId, "stream");
-            const data = JSON.parse(ev.data);
-            switch (ev.event) {
-              case "message":
-                updateAIChatItem(currentSessionId, {
-                  id: data.id,
-                  message: data.message,
-                  references: null,
-                });
-                return;
-              case "references":
-                return;
-            }
-          } catch (error) {
-            console.error("[SSE] Error parsing data:", error);
-          }
+          handleMessageEvent(currentSessionId, ev as ChatSSEEvent);
         },
         onclose() {
           console.log("[SSE] Connection closed.");
@@ -204,7 +241,7 @@ export const useChat = ({
         },
       });
     },
-    [currentSessionId, appendToChatHistory, updateAIChatItem, setChatState]
+    [currentSessionId, appendToChatHistory, setChatState, handleMessageEvent]
   );
 
   return {

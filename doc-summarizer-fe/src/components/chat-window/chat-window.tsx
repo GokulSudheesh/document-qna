@@ -88,6 +88,7 @@ const ChatWindow = ({
             key={item.id}
             className="last:mb-6"
             {...item}
+            isLastItem={index === chatHistory.length - 1}
             handleHeightChange={handleChatItemHeightChange}
             currentChatState={
               index === chatHistory.length - 1 && item.role === "assistant"

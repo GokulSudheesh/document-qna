@@ -20,6 +20,8 @@ class CRUDSession(CRUDBase[Session, None, UpdateSession]):
         collection = self.engine.get_collection(Session)
         motor_cursor = collection.aggregate([
             *offset,
+            # Sort by created date descending
+            {"$sort": {"created": -1}},
             {
                 "$project":
                     {

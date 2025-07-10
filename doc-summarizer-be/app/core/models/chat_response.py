@@ -5,7 +5,7 @@ from app.core.models.generic_response import AppResponse
 
 
 class ChatFileReference(BaseModel):
-    id: str
+    file_id: str
     file_name: str
 
 

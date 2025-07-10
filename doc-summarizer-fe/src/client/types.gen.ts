@@ -15,9 +15,9 @@ export type BodyFileUploadApiV1FileUploadPost = {
  */
 export type ChatFileReference = {
     /**
-     * Id
+     * File Id
      */
-    id: string;
+    file_id: string;
     /**
      * File Name
      */

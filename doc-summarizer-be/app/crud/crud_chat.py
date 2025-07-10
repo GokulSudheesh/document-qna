@@ -65,7 +65,7 @@ class CRUDChat(CRUDBase[ChatModel, None, None]):
                             {
                                 "$project": {
                                     "_id": 0,
-                                    "id": {
+                                    "file_id": {
                                         "$toString": "$_id"
                                     },
                                     "file_name": 1,

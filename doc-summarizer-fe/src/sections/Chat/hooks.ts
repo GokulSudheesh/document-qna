@@ -306,7 +306,7 @@ export const useChat = ({
   const { mutate: deleteSessionMutate } = useMutation({
     mutationFn: deleteSession,
     onError: () => {
-      toast.error(t("genericErrorMessage"));
+      toast.error(t("deleteSessionErrorMessage"));
     },
   });
 

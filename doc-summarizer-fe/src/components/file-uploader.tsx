@@ -16,6 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import FileIcon from "@/components/file-icon";
 import { GetFileResponse } from "@/client";
+import { useTranslations } from "next-intl";
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -126,6 +127,7 @@ export function FileUploader(props: FileUploaderProps) {
     uploadedFiles,
     ...dropzoneProps
   } = props;
+  const t = useTranslations("fileUploadComponent");
 
   const [files, setFiles] = useControllableState({
     prop: valueProp,
@@ -135,12 +137,12 @@ export function FileUploader(props: FileUploaderProps) {
   const onDrop = React.useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (!multiple && maxFileCount === 1 && acceptedFiles.length > 1) {
-        toast.error("Cannot upload more than 1 file at a time");
+        toast.error(t("singleFileErrorMessage"));
         return;
       }
 
       if ((files?.length ?? 0) + acceptedFiles.length > maxFileCount) {
-        toast.error(`Cannot upload more than ${maxFileCount} files`);
+        toast.error(t("multipleFileErrorMessage", { maxFileCount }));
         return;
       }
 
@@ -156,7 +158,7 @@ export function FileUploader(props: FileUploaderProps) {
 
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file }) => {
-          toast.error(`File ${file.name} was rejected`);
+          toast.error(t("fileRejectedMessage", { fileName: file.name }));
         });
       }
 
@@ -179,7 +181,7 @@ export function FileUploader(props: FileUploaderProps) {
       }
     },
 
-    [files, maxFileCount, multiple, onUpload, setFiles]
+    [files, maxFileCount, multiple, t, onUpload, setFiles]
   );
 
   function onRemove(index: number) {
@@ -236,7 +238,7 @@ export function FileUploader(props: FileUploaderProps) {
                   />
                 </div>
                 <p className="font-medium text-muted-foreground">
-                  Drop the files here
+                  {t("dropFiles")}
                 </p>
               </div>
             ) : (
@@ -249,16 +251,21 @@ export function FileUploader(props: FileUploaderProps) {
                 </div>
                 <div className="flex flex-col gap-px">
                   <p className="font-medium text-muted-foreground">
-                    Drag {`'n'`} drop files here, or click to select files
+                    {t("title")}
                   </p>
                   <p className="text-sm text-muted-foreground/70">
-                    You can upload
                     {maxFileCount > 1
-                      ? ` ${
-                          maxFileCount === Infinity ? "multiple" : maxFileCount
-                        }
-                      files (up to ${formatBytes(maxSize)} each)`
-                      : ` a file with ${formatBytes(maxSize)}`}
+                      ? maxFileCount === Infinity
+                        ? t("hintMultipleFiles", {
+                            maxSize: formatBytes(maxSize),
+                          })
+                        : t("hintMultipleCountFiles", {
+                            maxCount: maxFileCount,
+                            maxSize: formatBytes(maxSize),
+                          })
+                      : t("hintSingleFile", {
+                          maxSize: formatBytes(maxSize),
+                        })}
                   </p>
                 </div>
               </div>

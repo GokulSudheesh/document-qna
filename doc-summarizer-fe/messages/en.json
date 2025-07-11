@@ -4,6 +4,20 @@
   "chatInputPlaceholder": "Send a message...",
   "chatSSEError": "Something went wrong while processing your request. Please try again.",
   "genericErrorMessage": "Something went wrong. Please try again later.",
+  "uploadFileErrorMessage": "Failed to upload file(s). Please try again.",
+  "uploadFileSuccessMessage": "File(s) uploaded successfully.",
+  "deleteFileErrorMessage": "Failed to delete file. Please try again.",
+  "deleteSessionErrorMessage": "Failed to delete session. Please try again.",
+  "fileUploadComponent": {
+    "title": "Drag & drop files here, or click to select files",
+    "dropFiles": "Drop the files here",
+    "hintMultipleFiles": "You can upload multiple files (up to {maxSize} each)",
+    "hintMultipleCountFiles": "You can upload {maxCount} files (up to {maxSize} each)",
+    "hintSingleFile": "You can upload a file with {maxSize}",
+    "fileRejectedMessage": "File {fileName} was rejected",
+    "singleFileErrorMessage": "Cannot upload more than 1 file at a time",
+    "multipleFileErrorMessage": "Cannot upload more than {maxFileCount} files"
+  },
   "deleteSession": {
     "title": "Delete Session",
     "content": "Are you sure you want to delete this session? This action cannot be undone."

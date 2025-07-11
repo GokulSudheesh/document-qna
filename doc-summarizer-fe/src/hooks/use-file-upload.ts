@@ -1,7 +1,6 @@
 import { uploadFile } from "@/apiHelpers/fileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 
 export interface IUseFileUpload {
   files: File[];
@@ -20,16 +19,7 @@ export const useFileUpload = () => {
     setFiles(files);
   }, []);
 
-  const handleUpload = useCallback(async () => {
-    mutate(files, {
-      onSuccess: () => {
-        toast.success("Files uploaded successfully");
-      },
-      onError: () => {
-        toast.error("Error uploading files");
-      },
-    });
-  }, [files, mutate]);
+  const handleUpload = useCallback(async () => {}, [files, mutate]);
 
   return {
     files,

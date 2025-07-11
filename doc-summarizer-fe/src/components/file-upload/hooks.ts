@@ -79,8 +79,9 @@ export const useFileUpload = (): IUseFileUpload => {
         { sessionId, files },
         {
           onSuccess: (data) => {
+            if (!data?.data) return;
             const sessionId = data?.data?.session_id;
-            toast.success("Files uploaded successfully");
+            toast.success(t("uploadFileSuccessMessage"));
             setFiles([]);
             onSuccessCallback?.(data);
             if (sessionId) {
@@ -94,12 +95,12 @@ export const useFileUpload = (): IUseFileUpload => {
             }
           },
           onError: () => {
-            toast.error("Error uploading files");
+            toast.error(t("uploadFileErrorMessage"));
           },
         }
       );
     },
-    [files, uploadFileMutate, updateQueryFileList]
+    [files, t, uploadFileMutate, updateQueryFileList]
   );
 
   const onModalCloseCallback = useCallback(() => {
@@ -109,7 +110,7 @@ export const useFileUpload = (): IUseFileUpload => {
   const { mutate: deleteFileMutate } = useMutation({
     mutationFn: deleteFile,
     onError: () => {
-      toast.error(t("genericErrorMessage"));
+      toast.error(t("deleteFileErrorMessage"));
     },
   });
 

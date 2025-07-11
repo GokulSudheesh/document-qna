@@ -58,7 +58,7 @@ const SessionItem = ({
             as={motion.button}
             whileTap={{ scale: 0.9 }}
             size="icon"
-            className="hidden group-hover/item:flex absolute right-1 bottom-1/2 translate-y-1/2"
+            className="flex md:hidden group-hover/item:flex absolute right-1 bottom-1/2 translate-y-1/2"
             variant="outline"
             onClick={onDeleteCallback}
           >

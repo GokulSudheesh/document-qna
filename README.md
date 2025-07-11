@@ -8,4 +8,5 @@ Document QnA app that allows users to upload documents and ask questions.
 
 ## Demo
 
-[![Demo](https://github.com/GokulSudheesh/document-qna/raw/refs/heads/main/github-assets/docqna-demo-thumbnail.png)](https://github.com/GokulSudheesh/document-qna/raw/refs/heads/main/github-assets/docqna-demo.mp4)
+https://github.com/user-attachments/assets/f15ae4b9-ecf5-47ab-8422-4bda3b089d87
+

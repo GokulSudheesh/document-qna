@@ -12,7 +12,8 @@ import {
 import { AlertDialogueContext } from "@/providers/AlertDialogueProvider";
 
 const AlertDialogComponent = () => {
-  const { dialogue, resetDialogue } = useContext(AlertDialogueContext);
+  const { dialogue, resetDialogue, setDialogue } =
+    useContext(AlertDialogueContext);
   const {
     isOpen,
     type,
@@ -40,8 +41,16 @@ const AlertDialogComponent = () => {
     resetDialogue?.();
   }, [resetDialogue]);
 
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) handleClose();
+      else setDialogue?.({ ...dialogue, isOpen });
+    },
+    [handleClose, setDialogue, dialogue]
+  );
+
   return (
-    <AlertDialog open={isOpen}>
+    <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           {title && <AlertDialogTitle>{title}</AlertDialogTitle>}

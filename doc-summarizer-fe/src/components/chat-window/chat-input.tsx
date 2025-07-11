@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Paperclip, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
@@ -9,10 +9,15 @@ const MAX_CHAT_INPUT_HEIGHT = "max-h-[48px]"; // 2 lines max
 
 type Props = {
   isDisabled?: boolean;
+  handleUploadFile?: () => void;
   handleSendMessage: (message: string) => void;
 };
 
-const ChatInput = ({ isDisabled, handleSendMessage }: Props) => {
+const ChatInput = ({
+  isDisabled,
+  handleSendMessage,
+  handleUploadFile,
+}: Props) => {
   const t = useTranslations();
   const [message, setMessage] = useState("");
   const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -94,7 +99,16 @@ const ChatInput = ({ isDisabled, handleSendMessage }: Props) => {
           MAX_CHAT_INPUT_HEIGHT
         )}
       />
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8"
+          disabled={isDisabled}
+          onClick={handleUploadFile}
+        >
+          <Paperclip />
+        </Button>
         <Button
           variant="default"
           size="icon"

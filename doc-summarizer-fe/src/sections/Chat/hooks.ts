@@ -3,6 +3,9 @@ import {
   chatHistoryApiV1ChatHistorySessionIdGet,
   ChatHistoryItem,
   ChatHistoryResponse,
+  FileUploadResponse,
+  GetFileResponse,
+  listFilesApiV1FileListGet,
   listSessionsApiV1SessionListGet,
   Reference,
   Session,
@@ -32,12 +35,14 @@ interface IUseChatArgs {
 interface IUseChatReturn {
   currentSessionId: string | null;
   chatHistory: ChatHistoryItem[];
+  fileList: GetFileResponse[];
   chatSessions: Session[];
   currentChatState: TChatState;
   isFetchingChatHistory?: boolean;
   handleSessionChange: (sessionId: string) => void;
   handleSessionDelete: (sessionId: string) => void;
   handleSendMessage: (message: string) => void;
+  onFileUploadSuccessCallback: (data: FileUploadResponse) => void;
 }
 
 export const useChat = ({
@@ -67,6 +72,16 @@ export const useChat = ({
     queryFn: () =>
       chatHistoryApiV1ChatHistorySessionIdGet({
         path: { session_id: currentSessionId },
+      }),
+  });
+
+  const { data: fileList, isFetching: isFetchingFileList } = useQuery({
+    enabled: !!currentSessionId,
+    queryKey: ["chat-files", currentSessionId],
+    select: (data) => data?.data?.data || [],
+    queryFn: () =>
+      listFilesApiV1FileListGet({
+        query: { session_id: currentSessionId },
       }),
   });
 
@@ -326,14 +341,61 @@ export const useChat = ({
     [setDialogue, handleSessionDeleteCallback]
   );
 
+  const upsertSessionList = useCallback(
+    (sessionId: string, files: string[]) => {
+      queryClient.setQueryData(["chat-sessions"], (oldSessions: Session[]) => {
+        const session = oldSessions.find((s) => s.id === sessionId);
+        if (session) {
+          // Update existing session
+          return [
+            {
+              ...session,
+              files: [...(session.files || []), ...files],
+              updated: new Date().toISOString(),
+            },
+            ...oldSessions.filter((s) => s.id !== sessionId),
+          ];
+        } else {
+          // Add new session
+          const timeStamp = new Date().toISOString();
+          return [
+            {
+              created: timeStamp,
+              updated: timeStamp,
+              session_name: "",
+              files,
+              id: sessionId,
+            },
+            ...oldSessions,
+          ];
+        }
+      });
+    },
+    [queryClient]
+  );
+
+  const onFileUploadSuccessCallback = useCallback(
+    (data: FileUploadResponse) => {
+      if (!data?.data || !data?.data?.session_id) return;
+      setCurrentSessionId(data.data.session_id);
+      upsertSessionList(
+        data.data.session_id,
+        data.data.files?.map((file) => file.id) || []
+      );
+    },
+    [upsertSessionList]
+  );
+
   return {
     currentSessionId,
     chatHistory: chatHistory || [],
+    fileList: fileList || [],
     chatSessions: chatSessions || [],
     currentChatState,
     isFetchingChatHistory,
     handleSessionChange,
     handleSessionDelete,
     handleSendMessage,
+    onFileUploadSuccessCallback,
   };
 };

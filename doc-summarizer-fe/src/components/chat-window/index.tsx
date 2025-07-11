@@ -9,6 +9,7 @@ type Props = {
   currentChatState: TChatState;
   chatHistory: ChatHistoryItem[];
   isFetchingChatHistory?: boolean;
+  handleUploadFile?: () => void;
   handleSendMessage: (message: string) => void;
 };
 
@@ -17,6 +18,7 @@ const Chat = ({
   chatHistory,
   currentChatState,
   isFetchingChatHistory,
+  handleUploadFile,
   handleSendMessage,
 }: Props) => {
   const isChatInputDisabled =
@@ -35,6 +37,7 @@ const Chat = ({
         <ChatInput
           isDisabled={isChatInputDisabled}
           handleSendMessage={handleSendMessage}
+          handleUploadFile={handleUploadFile}
         />
       </div>
     </div>

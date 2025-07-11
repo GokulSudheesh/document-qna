@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { FileText, Upload, X } from "lucide-react";
+import { CircleCheckBig, Upload, X } from "lucide-react";
 import Dropzone, {
   type DropzoneProps,
   type FileRejection,
@@ -14,6 +14,8 @@ import { useControllableState } from "@/hooks/use-controllable-state";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import FileIcon from "@/components/file-icon";
+import { GetFileResponse } from "@/client";
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -90,6 +92,22 @@ interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
    * @example disabled
    */
   disabled?: boolean;
+
+  /**
+   * Uploaded files to display in the uploader.
+   * @type GetFileResponse[] | undefined
+   * @default undefined
+   * @example uploadedFiles={[{ id: "1", file_name: "file1.png" }]}
+   */
+  uploadedFiles?: GetFileResponse[];
+
+  /**
+   * Callback function when an uploaded file is removed.
+   * @type (id: string) => void
+   * @default undefined
+   * @example onRemoveUploadedFile={(id) => console.log(id)}
+   */
+  onRemoveUploadedFile?: (id: string) => void;
 }
 
 export function FileUploader(props: FileUploaderProps) {
@@ -97,6 +115,7 @@ export function FileUploader(props: FileUploaderProps) {
     value: valueProp,
     onValueChange,
     onUpload,
+    onRemoveUploadedFile,
     progresses,
     accept,
     maxSize = 1024 * 1024 * 2,
@@ -104,6 +123,7 @@ export function FileUploader(props: FileUploaderProps) {
     multiple = false,
     disabled = false,
     className,
+    uploadedFiles,
     ...dropzoneProps
   } = props;
 
@@ -246,7 +266,7 @@ export function FileUploader(props: FileUploaderProps) {
           </div>
         )}
       </Dropzone>
-      {files?.length ? (
+      {!!files?.length || !!uploadedFiles?.length ? (
         <ScrollArea className="h-fit w-full px-3">
           <div className="flex max-h-48 flex-col gap-4">
             {files?.map((file, index) => (
@@ -255,6 +275,15 @@ export function FileUploader(props: FileUploaderProps) {
                 file={file}
                 onRemove={() => onRemove(index)}
                 progress={progresses?.[file.name]}
+                disabled={disabled}
+              />
+            ))}
+            {uploadedFiles?.map((file) => (
+              <UploadedFileCard
+                key={file.id}
+                file={file}
+                onRemove={onRemoveUploadedFile}
+                disabled={disabled}
               />
             ))}
           </div>
@@ -268,13 +297,18 @@ interface FileCardProps {
   file: File;
   onRemove: () => void;
   progress?: number;
+  disabled?: boolean;
 }
 
-function FileCard({ file, progress, onRemove }: FileCardProps) {
+function FileCard({ file, progress, disabled, onRemove }: FileCardProps) {
   return (
     <div className="relative flex items-center gap-2.5">
       <div className="flex flex-1 gap-2.5">
-        {isFileWithPreview(file) ? <FilePreview file={file} /> : null}
+        {isFileWithPreview(file) ? (
+          <FilePreview file={file} />
+        ) : (
+          <FileIcon className="flex w-6 md:w-8 h-auto" fileName={file.name} />
+        )}
         <div className="flex w-full flex-col gap-2">
           <div className="flex flex-col gap-px">
             <p className="line-clamp-1 text-sm font-medium text-foreground/80">
@@ -294,6 +328,58 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
           size="icon"
           className="size-7"
           onClick={onRemove}
+          disabled={disabled}
+        >
+          <X className="size-4" aria-hidden="true" />
+          <span className="sr-only">Remove file</span>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+interface UploadedFileCardProps {
+  file: GetFileResponse;
+  disabled?: boolean;
+  onRemove?: (id: string) => void;
+}
+
+function UploadedFileCard({ file, disabled, onRemove }: UploadedFileCardProps) {
+  const onRemoveCallback = () => {
+    onRemove?.(file.id);
+  };
+
+  return (
+    <div className="relative flex items-center gap-2.5">
+      <div className="flex flex-1 gap-2.5">
+        <FileIcon
+          className="flex w-6 md:w-8 h-auto"
+          fileName={file.file_name}
+        />
+        <div className="flex w-full flex-col gap-2">
+          <div className="flex flex-col gap-px">
+            <div className="flex items-center gap-2">
+              <p className="line-clamp-1 text-sm font-medium text-foreground/80">
+                {file.file_name}
+              </p>
+              <CircleCheckBig className="size-4 mt-1 text-success" />
+            </div>
+            {file.file_size && (
+              <p className="text-xs text-muted-foreground">
+                {formatBytes(file.file_size)}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="size-7"
+          onClick={onRemoveCallback}
+          disabled={disabled}
         >
           <X className="size-4" aria-hidden="true" />
           <span className="sr-only">Remove file</span>
@@ -325,7 +411,5 @@ function FilePreview({ file }: FilePreviewProps) {
     );
   }
 
-  return (
-    <FileText className="size-10 text-muted-foreground" aria-hidden="true" />
-  );
+  return <FileIcon className="flex w-6 md:w-8 h-auto" fileName={file.name} />;
 }

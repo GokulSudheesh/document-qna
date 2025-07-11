@@ -312,6 +312,7 @@ export const useChat = ({
 
   const handleSessionDeleteCallback = useCallback(
     (sessionId: string) => {
+      if (sessionId === currentSessionId) setCurrentSessionId(null);
       queryClient.setQueryData(["chat-sessions"], (oldSessions: Session[]) => {
         return oldSessions.filter((s) => s.id !== sessionId);
       });
@@ -323,7 +324,7 @@ export const useChat = ({
         },
       });
     },
-    [queryClient]
+    [queryClient, currentSessionId]
   );
 
   const handleSessionDelete = useCallback(

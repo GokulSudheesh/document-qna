@@ -64,6 +64,7 @@ const Chat = ({ initialDataSessions }: Props) => {
               isFetchingChatHistory={isFetchingChatHistory}
               handleSendMessage={handleSendMessage}
               handleUploadFile={onFileUploadButtonClick}
+              onCreateNewSession={onCreateNewSession}
             />
           </main>
         </div>

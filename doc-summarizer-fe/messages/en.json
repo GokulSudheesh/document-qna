@@ -22,6 +22,10 @@
     "title": "Delete Session",
     "content": "Are you sure you want to delete this session? This action cannot be undone."
   },
+  "deleteFile": {
+    "title": "Delete File",
+    "content": "Are you sure you want to delete this file - {fileName}? This action cannot be undone."
+  },
   "createSession": {
     "title": "Create Session",
     "subtitle": "Upload files to create a new chat session."

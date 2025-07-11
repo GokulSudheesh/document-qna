@@ -338,7 +338,7 @@ export const useChat = ({
         primaryCtaHandler: () => handleSessionDeleteCallback(sessionId),
       });
     },
-    [setDialogue, handleSessionDeleteCallback]
+    [t, setDialogue, handleSessionDeleteCallback]
   );
 
   const upsertSessionList = useCallback(

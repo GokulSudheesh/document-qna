@@ -5,9 +5,10 @@ import {
   GetFileResponse,
   GetFilesResponse,
 } from "@/client/types.gen";
+import { AlertDialogueContext } from "@/providers/AlertDialogueProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { toast } from "sonner";
 
 export interface IUseFileUpload {
@@ -21,11 +22,13 @@ export interface IUseFileUpload {
   handleFileDeleteCallback: (args: {
     sessionId: string;
     fileId: string;
+    fileName: string;
   }) => void;
   onModalCloseCallback: () => void;
 }
 
 export const useFileUpload = (): IUseFileUpload => {
+  const { setDialogue } = useContext(AlertDialogueContext);
   const queryClient = useQueryClient();
   const t = useTranslations();
   const [files, setFiles] = useState<File[]>([]);
@@ -114,7 +117,7 @@ export const useFileUpload = (): IUseFileUpload => {
     },
   });
 
-  const handleFileDeleteCallback = useCallback(
+  const handleFileDelete = useCallback(
     ({ sessionId, fileId }: { sessionId: string; fileId: string }) => {
       queryClient.setQueryData(
         ["chat-files", sessionId],
@@ -138,6 +141,22 @@ export const useFileUpload = (): IUseFileUpload => {
     },
     [queryClient]
   );
+
+  const handleFileDeleteCallback: IUseFileUpload["handleFileDeleteCallback"] =
+    useCallback(
+      ({ sessionId, fileId, fileName }) => {
+        setDialogue?.({
+          isOpen: true,
+          type: "warning",
+          title: t("deleteFile.title"),
+          content: t("deleteFile.content", { fileName }),
+          primaryCtaLabel: t("yes"),
+          secondaryCtaLabel: t("no"),
+          primaryCtaHandler: () => handleFileDelete({ sessionId, fileId }),
+        });
+      },
+      [t, setDialogue, handleFileDelete]
+    );
 
   return {
     files,

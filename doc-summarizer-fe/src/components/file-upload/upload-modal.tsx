@@ -52,8 +52,8 @@ const UploadModal = ({
   }, [sessionId, handleUpload, onFileUploadSuccessCallback]);
 
   const handleFileDelete = useCallback(
-    (fileId: string) => {
-      if (sessionId) handleFileDeleteCallback({ sessionId, fileId });
+    ({ fileId, fileName }: { fileId: string; fileName: string }) => {
+      if (sessionId) handleFileDeleteCallback({ sessionId, fileId, fileName });
     },
     [sessionId, handleFileDeleteCallback]
   );

@@ -108,7 +108,7 @@ interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
    * @default undefined
    * @example onRemoveUploadedFile={(id) => console.log(id)}
    */
-  onRemoveUploadedFile?: (id: string) => void;
+  onRemoveUploadedFile?: (args: { fileId: string; fileName: string }) => void;
 }
 
 export function FileUploader(props: FileUploaderProps) {
@@ -348,12 +348,12 @@ function FileCard({ file, progress, disabled, onRemove }: FileCardProps) {
 interface UploadedFileCardProps {
   file: GetFileResponse;
   disabled?: boolean;
-  onRemove?: (id: string) => void;
+  onRemove?: (args: { fileId: string; fileName: string }) => void;
 }
 
 function UploadedFileCard({ file, disabled, onRemove }: UploadedFileCardProps) {
   const onRemoveCallback = () => {
-    onRemove?.(file.id);
+    onRemove?.({ fileId: file.id, fileName: file.file_name });
   };
 
   return (

@@ -22,6 +22,7 @@ async def file_upload(
     session = None
     if (session_id):
         session = await deps.get_session(session_id, db)
+        await crud.session.update_session_updated_at(db, db_obj=session)
     else:
         logging.info("Creating a new session")
         session = await crud.session.create(db=db)
@@ -50,5 +51,8 @@ async def delete_file(
     db: AgnosticDatabase = Depends(deps.get_db)
 ) -> DeleteByIDResponse:
     logging.info(f"Deleting file with ID: {file_id}")
-    await crud.file.remove(db=db, id=file_id)
+    file = await crud.file.remove(db=db, id=file_id)
+    session_id = file.session_id.id
+    session = await deps.get_session(session_id, db)
+    await crud.session.update_session_updated_at(db, db_obj=session)
     return DeleteByIDResponse(data={"id": file_id, "message": "File deleted successfully."})

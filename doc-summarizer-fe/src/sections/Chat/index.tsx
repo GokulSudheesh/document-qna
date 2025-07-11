@@ -36,6 +36,7 @@ const Chat = ({ initialDataSessions }: Props) => {
         <NavigationBar />
         <main className="flex w-full h-[calc(100dvh-68.8px)] relative">
           <ChatWindow
+            currentSessionId={currentSessionId}
             chatHistory={chatHistory}
             currentChatState={currentChatState}
             isFetchingChatHistory={isFetchingChatHistory}

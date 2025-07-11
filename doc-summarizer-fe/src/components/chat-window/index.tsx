@@ -5,6 +5,7 @@ import ChatInput from "./chat-input";
 import { TChatState } from "@/types/chat";
 
 type Props = {
+  currentSessionId: string | null;
   currentChatState: TChatState;
   chatHistory: ChatHistoryItem[];
   isFetchingChatHistory?: boolean;
@@ -12,11 +13,17 @@ type Props = {
 };
 
 const Chat = ({
+  currentSessionId,
   chatHistory,
   currentChatState,
   isFetchingChatHistory,
   handleSendMessage,
 }: Props) => {
+  const isChatInputDisabled =
+    !currentSessionId ||
+    currentChatState === "loading" ||
+    currentChatState === "stream";
+
   return (
     <div className="flex flex-col w-full h-full text-base">
       <ChatWindow
@@ -24,11 +31,9 @@ const Chat = ({
         currentChatState={currentChatState}
         isFetchingChatHistory={isFetchingChatHistory}
       />
-      <div className="flex mx-16 mt-auto py-4">
+      <div className="flex mx-4 md:mx-16 mt-auto py-4">
         <ChatInput
-          isDisabled={
-            currentChatState === "loading" || currentChatState === "stream"
-          }
+          isDisabled={isChatInputDisabled}
           handleSendMessage={handleSendMessage}
         />
       </div>

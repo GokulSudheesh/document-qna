@@ -69,10 +69,7 @@ const ChatInput = ({ isDisabled, handleSendMessage }: Props) => {
         `relative cursor-text flex flex-col gap-2 border-input focus-within:border-ring focus-visible:border-ring focus-within:ring-ring/50 
       focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive 
       dark:bg-input/30 field-sizing-content w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] 
-      outline-none focus-within:ring-[3px] focus-visible:ring-[3px]`,
-        {
-          "cursor-not-allowed opacity-50": isDisabled,
-        }
+      outline-none focus-within:ring-[3px] focus-visible:ring-[3px]`
       )}
     >
       <textarea
@@ -81,7 +78,6 @@ const ChatInput = ({ isDisabled, handleSendMessage }: Props) => {
         onChange={handleOnChange}
         onKeyDown={handleKeyDown}
         data-slot="textarea"
-        disabled={isDisabled}
         style={{
           height: CHAT_INPUT_HEIGHT,
         }}

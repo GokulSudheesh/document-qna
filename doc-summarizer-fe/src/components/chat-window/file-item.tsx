@@ -26,7 +26,16 @@ const FileItem = ({ file_name }: Props) => {
       variants={fileItemVariant}
       className="flex gap-2 items-center border border-fileitem-border text-fileitem-foreground p-2 rounded-md"
     >
-      <Image src={IconMap[fileType]} width={32} alt={fileType} />
+      <div className="flex w-6 md:w-8 h-auto">
+        <Image
+          src={IconMap[fileType]}
+          width="0"
+          height="0"
+          sizes="100vw"
+          className="w-full h-auto"
+          alt={fileType}
+        />
+      </div>
       <span className="text-sm">{file_name}</span>
     </motion.div>
   );
